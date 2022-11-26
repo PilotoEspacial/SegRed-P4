@@ -9,6 +9,8 @@ RUN apt-get update && \
 
 RUN pip install Flask Flask-RESTful requests
 
-COPY entrypoint.sh /entrypoint.sh
+COPY auth.py /auth.py
+RUN chmod 744 auth.py
 
+COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/bin/bash","/entrypoint.sh"]

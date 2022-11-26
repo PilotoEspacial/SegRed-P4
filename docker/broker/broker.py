@@ -11,7 +11,7 @@ api = Api(app)
 app.config['SECRET_KEY'] = 'SegRed-P3'
 
 ''' Global variables '''
-HOST = "10.0.1.4"
+IP_HOST = "10.0.1.4"
 PORT = 5000
 
 IP_AUTH = "10.0.2.3"
@@ -281,11 +281,9 @@ class AllDocs(Resource):
 
 
 api.add_resource(Version, '/version')
-api.add_resource(Login, '/login')
-api.add_resource(SignUp, '/signup')
 api.add_resource(User, '/<user_id>/<doc_id>')
 api.add_resource(AllDocs, '/<user_id>/_all_docs')
 
 if __name__ == '__main__':
     check_directories()
-    app.run(debug=True, host=HOST, port=PORT)
+    app.run(debug=True, host=IP_HOST, port=PORT)
