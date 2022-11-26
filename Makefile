@@ -1,5 +1,5 @@
 build:
-	@echo "build"
+	@echo "***build"
 	docker build --rm -f docker/Dockerfile --tag debian-base docker/
 	docker build --rm -f docker/router/Dockerfile --tag debian-router docker/router/
 	docker build --rm -f docker/jump/Dockerfile --tag debian-jump docker/jump/
@@ -9,13 +9,13 @@ build:
 	docker build --rm -f docker/work/Dockerfile --tag debian-work docker/work/
 
 network:
-	@echo "network"
+	@echo "***network"
 	-docker network create -d bridge --subnet 10.0.1.0/24 dmz
 	-docker network create -d bridge --subnet 10.0.2.0/24 srv
 	-docker network create -d bridge --subnet 10.0.3.0/24 dev
 
 containers: network
-	@echo "containers"
+	@echo "***containers"
 	docker run --privileged -ti -d --name router --hostname router debian-router
 	docker network connect dmz router
 	docker network connect srv router
@@ -33,7 +33,7 @@ containers: network
 		--network dev --ip 10.0.3.3 debian-work
 
 remove:
-	@echo "remove"
+	@echo "***remove"
 	-docker stop router jump broker auth files work
 	docker network prune -f
 	docker rm -f router jump broker auth files work
