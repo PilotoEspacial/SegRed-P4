@@ -12,8 +12,14 @@ app.config['SECRET_KEY'] = 'SegRed-P3'
 
 ''' Global variables '''
 HOST = "10.0.1.4"
+PORT = 5000
 
-__version__ = 'v0.0.1-alpha'
+IP_AUTH = "10.0.2.3"
+IP_FILES = "10.0.2.4"
+
+
+
+__version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
 TOKENS_DICT = {}
 EXP_TOKEN = {}
@@ -282,4 +288,4 @@ api.add_resource(AllDocs, '/<user_id>/_all_docs')
 
 if __name__ == '__main__':
     check_directories()
-    app.run(debug=True, ssl_context=('./cert/cert.pem', './cert/key.pem'))
+    app.run(debug=True, host=HOST, port=PORT)
