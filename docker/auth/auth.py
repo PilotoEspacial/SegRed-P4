@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 from flask import jsonify, Flask, request
 from flask_restful import Resource, Api, abort
-import uuid, os, hashlib, json
+import uuid, os, hashlib
 from time import ctime
 from datetime import datetime, timedelta
 
@@ -17,6 +19,16 @@ EXP_TOKEN = {}
 USERS_PATH = "users/"
 MINUTES = 5
 
+
+def check_directories():
+    ''' Check if users directory and shadow file '''
+    if not os.path.isdir(USERS_PATH):
+        os.mkdir(USERS_PATH)
+    try:
+        shadow_file = open('.shadow', 'r')
+        shadow_file.close()
+    except FileNotFoundError:
+        os.system("touch .shadow")
 
 def encrypt_password(salt, password):
     ''' Encrypt password using SHA256 algorithm'''
@@ -142,4 +154,5 @@ api.add_resource(Login, '/login')
 api.add_resource(SignUp, '/signup')
 
 if __name__ == '__main__':
+    check_directories()
     app.run(debug=True, host=IP_HOST, port=PORT)
