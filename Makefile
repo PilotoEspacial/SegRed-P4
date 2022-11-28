@@ -7,6 +7,7 @@ build:
 	docker build --rm -f docker/auth/Dockerfile --tag debian-auth docker/auth/
 	docker build --rm -f docker/files/Dockerfile --tag debian-files docker/files/
 	docker build --rm -f docker/work/Dockerfile --tag debian-work docker/work/
+	docker build --rm -f docker/logs/Dockerfile --tag debian-logs docker/logs/
 
 network:
 	@echo "***network"
@@ -31,12 +32,17 @@ containers: network
 		--network srv --ip 10.0.2.4 debian-files
 	docker run --privileged -ti -d --name work --hostname work \
 		--network dev --ip 10.0.3.3 debian-work
+	docker run --privileged -ti -d --name logs --hostname logs \
+		--network dev --ip 10.0.3.4 debian-logs
+
+run-test:
+	@echo "tests"
 
 remove:
 	@echo "***remove"
-	-docker stop router jump broker auth files work
+	-docker stop router jump broker auth files work logs
 	docker network prune -f
-	docker rm -f router jump broker auth files work
+	docker rm -f router jump broker auth files work logs
 
 clean:
 	find . -name "*~" -delete
