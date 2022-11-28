@@ -21,6 +21,12 @@ chown -R root:adm /var/log/remotelogs
 
 service rsyslog restart
 
+touch /var/log/auth.log
+
+service ssh restart
+service rsyslog restart
+service fail2ban restart
+
 if [ -z "$@" ]; then
     exec /bin/bash
 else

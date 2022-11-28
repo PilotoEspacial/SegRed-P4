@@ -13,6 +13,7 @@ RUN apt-get update && \
         rsyslog \
         curl \
         sudo \
+        fail2ban \
         && \
     apt-get clean
 
