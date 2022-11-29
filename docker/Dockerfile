@@ -27,4 +27,6 @@ COPY assets/rsyslog/20-forward-logs.conf /etc/rsyslog.d/20-forward-logs.conf
 
 COPY assets/rsyslog/50-sshd.conf /etc/rsyslog.d/50-sshd.conf
 
+COPY assets/fail2ban/defaults-debian.conf /etc/fail2ban/jail.d/defaults-debian.conf
+
 RUN chmod 644 /home/op/.ssh/authorized_keys && chown op:op -R /home/op

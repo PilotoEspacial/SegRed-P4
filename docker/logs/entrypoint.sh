@@ -23,6 +23,8 @@ service rsyslog restart
 
 touch /var/log/auth.log
 
+sed -i 's/logpath = \/var\/log\/auth.log/logpath = \/var\/log\/remotelogs\/logs\/sshd.log/g' /etc/fail2ban/jail.d/defaults-debian.conf
+
 service ssh restart
 service rsyslog restart
 service fail2ban restart
