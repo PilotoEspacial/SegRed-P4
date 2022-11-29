@@ -35,7 +35,7 @@ containers: network
 	docker run --privileged -ti -d --name logs --hostname logs \
 		--network dev --ip 10.0.3.4 debian-logs
 
-run-test:
+run-tests:
 	@echo "tests"
 
 remove:
