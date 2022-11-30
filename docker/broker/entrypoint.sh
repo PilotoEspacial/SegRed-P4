@@ -6,6 +6,7 @@ service rsyslog start
 python3 broker.py
 
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
 touch /var/log/auth.log
 

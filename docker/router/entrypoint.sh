@@ -3,8 +3,11 @@
 service ssh start
 service rsyslog start
 
-echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+# Iptables configuration
 
+
+echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 touch /var/log/auth.log
 
 service ssh restart

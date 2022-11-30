@@ -5,6 +5,7 @@ service rsyslog start
 
 # SSH config
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
+echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
 # Rsyslog config
 rm /etc/rsyslog.d/20-forward-logs.conf
