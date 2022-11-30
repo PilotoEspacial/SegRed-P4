@@ -1,4 +1,4 @@
-# Práctica 3 - Seguridad en Redes
+# Práctica 4 - Seguridad en Redes
 URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 
 # Contenido
@@ -80,7 +80,7 @@ En los clientes añadiremos dos plantillas, una para reenviar los logs al servid
 
 Para evitar ataques de fuerza bruta, se utiliza el servicio de `fail2ban` para banear IPs si exceden un número de intentos a la hora de logear en cualquiera de los nodos mediante SSH. Para ello es necesario tener al menos el un log local monitorize los intentos de autenticación (auth.log). Por eso en la configuración de `rsyslog` se almacenan los logs en un servidor centralizado, pero además, se almacenan de manera local.
 
-La configuración que se realiza en cada nodo es añadir una "jaula" para el servicio de ssh, para que banee una IP que intente autenticarse en cualquiera de los nodos y falle más de 3 veces. El archivo [defaults-debian.conf](docker/assets/fail2ban/defaults-debian.conf) contiene dicha configuració y deberá ser almacenado en la ruta **/etc/fail2ban/jail.d/defaults-debian.conf**.
+La configuración que se realiza en cada nodo es añadir una "jaula" para el servicio de ssh, para que banee una IP que intente autenticarse en cualquiera de los nodos y falle más de 3 veces. El archivo [defaults-debian.conf](docker/assets/fail2ban/defaults-debian.conf) contiene dicha configuración y deberá ser almacenado en la ruta **/etc/fail2ban/jail.d/defaults-debian.conf**.
 
 Hay un excepción en la configuración para el servidor de **logs**, ya que el log que tiene que monitorizar se encuentra en un ruta diferente. Su configuración es la siguiente:
 
@@ -88,6 +88,7 @@ Hay un excepción en la configuración para el servidor de **logs**, ya que el l
 [sshd]
 enabled = true
 port = ssh
+mode = aggressive
 logpath = /var/log/remotelogs/logs/sshd.log
 maxretry = 3
 bantime = 120
