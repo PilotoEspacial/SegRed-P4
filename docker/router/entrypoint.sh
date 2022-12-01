@@ -1,10 +1,21 @@
 #!/bin/bash
 
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Politicas por defecto
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+
+# Ping
+iptables -A INPUT -i lo -j ACCEPT
+
+iptables -A INPUT -p icmp -j ACCEPT
+iptables -A FORWARD -p icmp -j ACCEPT
+iptables -t nat -A POSTROUTING -o eth0 -p icmp -j MASQUERADE
+
 service ssh start
 service rsyslog start
-
-# Iptables configuration
-
 
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
