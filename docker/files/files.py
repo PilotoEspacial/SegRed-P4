@@ -14,12 +14,34 @@ IP_HOST = "10.0.2.4"
 PORT = 5000
 
 TOKENS_DICT = {}
-EXP_TOKEN = {}
 USERS_PATH = "users/"
 
 
+def verify_token(token, username):
+        
+        try:
+            data = jwt.decode(token, KEY, algorithms=['HS256'])
+            exp = datetime.fromtimestamp(data['exp'])
+
+            if exp < datetime.utcnow():
+                print('Token expired')
+                raise jwt.ExpiredSignatureError
+
+            if data['username'] != username:
+                print('Usuario no coincide con el token')
+                raise jwt.InvalidTokenError
+            
+            return True
+        
+        except jwt.ExpiredSignatureError:
+            return False
+        
+        except jwt.InvalidTokenError:
+            return False
+
 def check_authorization_header(user_id):
     ''' Check if token is correct '''
+''' Check if token is correct '''
     auth_header = request.headers.get('Authorization')
     header = auth_header.split(" ")
 
@@ -28,18 +50,10 @@ def check_authorization_header(user_id):
 
     token = header[1]
         
-    if token in EXP_TOKEN:
-        try:
-            if TOKENS_DICT[user_id]==token:
-                if (datetime.strptime(EXP_TOKEN[token], '%H:%M') > datetime.strptime(datetime.now().strftime('%H,%M'),'%H,%M')):
-                    return True
-                else:
-                    del(EXP_TOKEN[token])
-                    del(TOKENS_DICT[user_id])
-        except KeyError:
-            abort(404, message="The user " + user_id + " is not registered in the system")
-
-    return False
+    if verify_token(token, user_id):
+        return True
+    else:
+        abort(404, message="The user " + user_id + " is not registered in the system")
 
 
 class User(Resource):

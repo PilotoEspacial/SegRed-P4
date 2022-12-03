@@ -18,7 +18,28 @@ TOKENS_DICT = {}
 EXP_TOKEN = {}
 USERS_PATH = "users/"
 MINUTES = 5
+KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
+def verify_token(token, username):
+	try:
+            data = jwt.decode(token, KEY, algorithms=['HS256'])
+            exp = datetime.fromtimestamp(data['exp'])
+
+            if exp < datetime.utcnow():
+                print('Token expired')
+                raise jwt.ExpiredSignatureError
+
+            if data['username'] != username:
+                print('Usuario no coincide con el token')
+                raise jwt.InvalidTokenError
+            
+            return True
+        
+        except jwt.ExpiredSignatureError:
+            return False
+        
+        except jwt.InvalidTokenError:
+            return False
 
 def check_directories():
     ''' Check if users directory and shadow file '''
@@ -34,11 +55,12 @@ def encrypt_password(salt, password):
     ''' Encrypt password using SHA256 algorithm'''
     return hashlib.sha256(salt.encode('utf-8') + password.encode('utf-8')).hexdigest()
 
-def generate_access_token():
+    
+def generate_access_token(username):
     ''' Generate random token for a new user '''
-    exp = (datetime.now() + timedelta(minutes=MINUTES)).strftime('%H:%M')
-    token = str(uuid.UUID(bytes=os.urandom(16), version=4))
-    EXP_TOKEN[token] = exp
+    exp = datetime.utcnow() + timedelta(minutes=MINUTES)
+    token = jwt.encode({'username': username, 'exp': exp},KEY, algorithm='HS256')
+    
     return token
 
 ''' Login class '''
@@ -96,9 +118,9 @@ class SignUp(Resource):
                 self.register_user(username, password)
                 self.create_directory(username)
 
-                token = generate_access_token()
+                token = generate_access_token(username)
                 TOKENS_DICT[username] = token
-                return jsonify(access_token=token)
+                return jsonify(token)
 
 class Login(Resource):
     ''' Login class '''
@@ -136,15 +158,14 @@ class Login(Resource):
                     TOKENS_DICT[un] = token
                     return jsonify(access_token=token)
                 #Si lo tiene, comprobamos su fecha de caducidad, si ha expirado, los eliminamos de ambos json y generamos unos nuevos
-                if token in EXP_TOKEN:
-                    if (datetime.strptime(EXP_TOKEN[token], '%H:%M') > datetime.strptime(datetime.now().strftime('%H,%M'),'%H,%M')):
-                        return jsonify(access_token=TOKENS_DICT[un])
-                    else:
-                        del(EXP_TOKEN[token])
-                        del(TOKENS_DICT[un])
-                        token = generate_access_token()
-                        TOKENS_DICT[un] = token
-                        return jsonify(access_token=token)
+                if verify_token(token,un):
+                    return jsonify(access_token=TOKENS_DICT[un])
+                
+                else:
+                    del(TOKENS_DICT[un])
+                    token = generate_access_token(username)
+                    TOKENS_DICT[un] = token
+                    return jsonify(access_token=token)
             else:
                 abort(401, message="Error, user or password incorrect")
 
