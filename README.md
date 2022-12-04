@@ -8,7 +8,6 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 - [Explicación](#explicación)
     - [Configuración y despliegue de la API](#configuración-y-despliegue-de-la-api)
     - [SSH](#ssh)
-        - [Conectarse máquina work a través de jump](#conectarse-máquina-work-a-través-de-jump)
     - [Reglas iptables](#reglas-iptables)
     - [Rsyslog](#rsyslog)
     - [Fail2ban](#fail2ban)
@@ -52,8 +51,6 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 ### Configuración y despliegue de la API
 
 ### SSH
-
-#### Conectarse máquina work a través de jump
 
 Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. Para ello ejecutamos el siguiente comando:
 
