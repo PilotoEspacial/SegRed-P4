@@ -8,6 +8,7 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 - [Explicación](#explicación)
     - [Configuración y despliegue de la API](#configuración-y-despliegue-de-la-api)
     - [SSH](#ssh)
+        - [Conectarse máquina work a través de jump](#conectarse-máquina-work-a-través-de-jump)
     - [Reglas iptables](#reglas-iptables)
     - [Rsyslog](#rsyslog)
     - [Fail2ban](#fail2ban)
@@ -51,6 +52,33 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 ### Configuración y despliegue de la API
 
 ### SSH
+
+#### Conectarse máquina work a través de jump
+
+Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. Para ello ejecutamos el siguiente comando:
+
+```
+ssh -J jump@172.17.0.2 -A op@10.0.3.3
+```
+
+En el caso de que no funcione, puede que sea necesario eliminar del archivo`known_hosts` el host para evitar conflictos:
+
+```
+ssh-keygen -f "/home/$USER/.ssh/known_hosts" -R "host_ip_address"
+```
+
+Además, será necesario añadir a nuestro `ssh-agent` la clave privada del usuario con el que queremos acceder:
+
+```
+ssh-add docker/assets/ssh/op
+ssh-add docker/work/assests/dev
+```
+
+Si nos salta el error: `Could not open a connection to your authentication agent`, será necesario iniciar el ssh-agent:
+
+```
+eval `ssh-agent -s`
+```
 
 ### Reglas iptables
 

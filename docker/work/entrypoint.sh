@@ -10,6 +10,10 @@ iptables -P OUTPUT ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -p icmp -j ACCEPT
 
+# SSH
+iptables -A INPUT -p tcp --dport 22 -s 10.0.1.3 -j ACCEPT
+iptables -A INPUT -p tcp --sport 22 -s 10.0.1.0/24 -j ACCEPT
+
 service ssh start
 service rsyslog start
 
