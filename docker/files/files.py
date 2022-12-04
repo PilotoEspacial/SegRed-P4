@@ -3,8 +3,7 @@
 import os,json
 from flask import jsonify, Flask, request
 from flask_restful import Resource, Api, abort
-from datetime import datetime
-import jwt
+import requests
 
 
 app = Flask(__name__)
@@ -16,53 +15,40 @@ PORT = 5000
 
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
+AUTH_SERVER = "http://10.0.2.4:5000/"
 TOKENS_DICT = {}
 USERS_PATH = "users/"
 
 
-def verify_token(token, username):
-        
-        try:
-            data = jwt.decode(token, KEY, algorithms=['HS256'])
-            exp = datetime.fromtimestamp(data['exp'])
-
-            if exp < datetime.utcnow():
-                print('Token expired')
-                raise jwt.ExpiredSignatureError
-
-            if data['username'] != username:
-                print('Usuario no coincide con el token')
-                raise jwt.InvalidTokenError
-            
-            return True
-        
-        except jwt.ExpiredSignatureError:
-            return False
-        
-        except jwt.InvalidTokenError:
-            return False
-
 def check_authorization_header(user_id):
     ''' Check if token is correct '''
-    auth_header = request.headers.get('Authorization')
-    header = auth_header.split(" ")
+    try:
+        auth_header = request.headers.get('Authorization')
+        header = auth_header.split(" ")
 
-    if header[0] != "token":
-        abort(400, message="Authorization header must be: token <user-auth-token>")
+        if header[0] != "token":
+            abort(400, message="Authorization header must be: token <user-auth-token>")
 
-    token = header[1]
+        token = header[1]
+        print("token: ",token)
         
-    if verify_token(token, user_id):
-        return True
-    else:
-        abort(404, message="The user " + user_id + " is not registered in the system")
-
+        response = requests.get(AUTH_SERVER +"/tokens",{"username" : user_id, "token" : token}, verify=False)
+        
+        print(response.status_code)
+        if (response.status_code != 200):
+            return response.status_code
+        else:
+            return True
+    except Exception as err:
+        print("Error: ", err)
 
 class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
-        ''' Process GET request ''' 
-        if check_authorization_header(user_id):
+        ''' Process GET request '''
+        status = check_authorization_header(user_id)
+
+        if status == 200 :
             if not os.path.exists(USERS_PATH+user_id+"/"+doc_id+".json"):
                 abort(404, message="The file does not exist")
             else:
@@ -72,7 +58,7 @@ class User(Resource):
 
                 return data
         else:
-            abort(401, message="Token is not correct")
+            abort(401, message="Token is not correct "+ str(status))
     
     def post(self, user_id, doc_id):
         ''' Process POST request '''

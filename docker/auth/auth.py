@@ -21,7 +21,7 @@ USERS_PATH = "users/"
 MINUTES = 5
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
-def verify_token(token, username):
+def verify_token(username, token):
         
         try:
             data = jwt.decode(token, KEY, algorithms=['HS256'])
@@ -171,10 +171,20 @@ class Login(Resource):
             else:
                 abort(401, message="Error, user or password incorrect")
 
+class Authorize(Resource):
+    def get(self):
+        json_data = request.get_json(force=True)
+        username = json_data['username']
+        token = json_data['token']
+        if verify_token(username, token):
+            return {}, 200 # Token matches
+        else:
+            return {"Error": 401, "message": "Wrong token or username"}
 
 
 api.add_resource(Login, '/login')
 api.add_resource(SignUp, '/signup')
+api.add_resource(Authorize, '/token')
 
 if __name__ == '__main__':
     check_directories()
