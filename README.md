@@ -57,28 +57,36 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 
 Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. Para ello ejecutamos el siguiente comando:
 
-```
+```bash
 ssh -J jump@172.17.0.2 -A op@10.0.3.3
 ```
 
 En el caso de que no funcione, puede que sea necesario eliminar del archivo`known_hosts` el host para evitar conflictos:
 
-```
+```bash
 ssh-keygen -f "/home/$USER/.ssh/known_hosts" -R "host_ip_address"
 ```
 
 Además, será necesario añadir a nuestro `ssh-agent` la clave privada del usuario con el que queremos acceder:
 
-```
+```bash
 ssh-add docker/assets/ssh/op
 ssh-add docker/work/assests/dev
 ```
 
 Si nos salta el error: `Could not open a connection to your authentication agent`, será necesario iniciar el ssh-agent:
 
-```
+```bash
 eval `ssh-agent -s`
 ```
+
+Ahora para poder acceder con el usuario `op` a cualquiera de los nodos primero en necesario acceder al nodo `work` usando el primer comando mostrado. Desde `work` ya podremos acceder a los demás nodos con el usuario `op` con un simple SSH:
+
+```bash
+op@work:~$ ssh op@10.0.2.3 # Acceder al nodo auth
+```
+
+Si intentamos acceder desde el propio host a cualquiera de los nodos, no se permitirá dicha conexión ya que solo se permiten conexiones SSH provenientes del nodo `work`.
 
 ### Reglas iptables
 

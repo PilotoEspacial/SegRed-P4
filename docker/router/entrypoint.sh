@@ -25,6 +25,22 @@ iptables -A FORWARD -i eth3 -o eth1 -p tcp --sport 22 -j ACCEPT
 iptables -A FORWARD -i eth3 -o eth1 -p tcp --dport 22 -j ACCEPT
 iptables -A FORWARD -i eth1 -o eth3 -p tcp --sport 22 -j ACCEPT
 
+# Aceptar trafico ssh entre dmz(eth1) y dev(eth2)
+# dmz -> dev 
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --sport 22 -j ACCEPT
+# dev -> dmz
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 22 -j ACCEPT
+
+# Aceptar trafico ssh entre srv(eth3) y dev(eth1)
+# srv -> dev
+iptables -A FORWARD -i eth3 -o eth2 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth2 -p tcp --dport 22 -j ACCEPT
+# dev -> srv
+iptables -A FORWARD -i eth2 -o eth3 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
+
 iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
 
 service ssh start

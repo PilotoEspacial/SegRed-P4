@@ -9,6 +9,9 @@ iptables -P OUTPUT ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -p icmp -j ACCEPT
 
+# SSH
+iptables -A INPUT -p tcp --dport 22 -i eth0 -s 10.0.3.3 -j ACCEPT
+
 service ssh start
 service rsyslog start
 
@@ -22,7 +25,7 @@ service rsyslog restart
 service fail2ban restart
 
 ip route del default
-ip route add default via 10.0.2.2 srv eth0
+ip route add default via 10.0.2.2 dev eth0
 
 python3 auth.py
 
