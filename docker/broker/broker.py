@@ -20,33 +20,7 @@ IP_FILES = "10.0.2.4"
 __version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
 TOKENS_DICT = {}
-EXP_TOKEN = {}
 MINUTES = 5
-
-''' Global functions '''
-
-def check_authorization_header(user_id):
-    ''' Check if token is correct '''
-    auth_header = request.headers.get('Authorization')
-    header = auth_header.split(" ")
-
-    if header[0] != "token":
-        abort(400, message="Authorization header must be: token <user-auth-token>")
-
-    token = header[1]
-        
-    if token in EXP_TOKEN:
-        try:
-            if TOKENS_DICT[user_id]==token:
-                if (datetime.strptime(EXP_TOKEN[token], '%H:%M') > datetime.strptime(datetime.now().strftime('%H,%M'),'%H,%M')):
-                    return True
-                else:
-                    del(EXP_TOKEN[token])
-                    del(TOKENS_DICT[user_id])
-        except KeyError:
-            abort(404, message="The user " + user_id + " is not registered in the system")
-
-    return False
 
 ''' Classes '''
 class Version(Resource):

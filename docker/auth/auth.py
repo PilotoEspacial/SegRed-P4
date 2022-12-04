@@ -2,9 +2,10 @@
 
 from flask import jsonify, Flask, request
 from flask_restful import Resource, Api, abort
-import uuid, os, hashlib
+import os, hashlib
 from time import ctime
 from datetime import datetime, timedelta
+import jwt
 
 app = Flask(__name__)
 api = Api(app)
@@ -21,7 +22,8 @@ MINUTES = 5
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
 def verify_token(token, username):
-	try:
+        
+        try:
             data = jwt.decode(token, KEY, algorithms=['HS256'])
             exp = datetime.fromtimestamp(data['exp'])
 
@@ -163,7 +165,7 @@ class Login(Resource):
                 
                 else:
                     del(TOKENS_DICT[un])
-                    token = generate_access_token(username)
+                    token = generate_access_token(un)
                     TOKENS_DICT[un] = token
                     return jsonify(access_token=token)
             else:

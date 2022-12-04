@@ -25,7 +25,6 @@ service fail2ban restart
 ip route del default
 ip route add default via 10.0.2.2 dev eth0 
 
-pip install -r requirements.txt
 python3 files.py
 
 if [ -z "$@" ]; then

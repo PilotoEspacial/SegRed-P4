@@ -12,8 +12,6 @@ iptables -A INPUT -p icmp -j ACCEPT
 service ssh start
 service rsyslog start
 
-python3 broker.py
-
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
@@ -24,7 +22,9 @@ service rsyslog restart
 service fail2ban restart
 
 ip route del default
-ip route add default via 10.0.1.2 dev eth0 
+ip route add default via 10.0.1.2 dev eth0
+
+python3 broker.py
 
 if [ -z "$@" ]; then
     exec /bin/bash

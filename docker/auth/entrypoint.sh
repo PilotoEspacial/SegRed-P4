@@ -1,7 +1,5 @@
 #!/bin/bash
 
-python3 auth.py
-
 # Politicas por defecto
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
@@ -26,7 +24,6 @@ service fail2ban restart
 ip route del default
 ip route add default via 10.0.2.2 srv eth0
 
-pip install -r requirements.txt
 python3 auth.py
 
 if [ -z "$@" ]; then

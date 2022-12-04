@@ -4,6 +4,7 @@ import os,json
 from flask import jsonify, Flask, request
 from flask_restful import Resource, Api, abort
 from datetime import datetime
+import jwt
 
 
 app = Flask(__name__)
@@ -12,6 +13,8 @@ api = Api(app)
 '''Global variables'''
 IP_HOST = "10.0.2.4"
 PORT = 5000
+
+KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
 TOKENS_DICT = {}
 USERS_PATH = "users/"
@@ -41,7 +44,6 @@ def verify_token(token, username):
 
 def check_authorization_header(user_id):
     ''' Check if token is correct '''
-''' Check if token is correct '''
     auth_header = request.headers.get('Authorization')
     header = auth_header.split(" ")
 
