@@ -135,7 +135,7 @@ class AllDocs(Resource):
             path = os.listdir(USERS_PATH + user_id)
             for files in path:
                 with open(USERS_PATH + user_id+"/"+files) as content:
-                    all_docks[files] = json.load(content)
+                    all_docks[files.strip(".json")] = json.load(content)
             return jsonify(all_docks)
         else :
             abort(401, message="Token is not correct")

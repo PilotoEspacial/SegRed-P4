@@ -80,8 +80,8 @@ class SignUp(Resource):
         ''' Register new user in shadow file '''
         shadow_file = open('.shadow', 'a')
         credentials = ""
-        time = str(ctime())
-        salt = time.replace(':','/')
+        
+        salt = str(uuid.uuid4())
         
         if (os.stat(".shadow").st_size != 0):
             credentials = "\n"
@@ -143,30 +143,30 @@ class Login(Resource):
         ''' Process POST request '''
         try:
             json_data = request.get_json(force=True)            
-            un = json_data['username']
-            pw = json_data['password']
+            username = json_data['username']
+            password = json_data['password']
         except KeyError:
             abort(400, message="Arguments must be 'username' and 'password'")
         except:
             abort(400, message="Wrong format of the file")
         else:
         #Comprobamos si el usuario esta registrado
-            if (self.check_credentials(un,pw)):
+            if (self.check_credentials(username,password)):
                 #Probamos si tiene un token asociado, si no se genera
                 try:
-                    token = TOKENS_DICT[un]
+                    token = TOKENS_DICT[username]
                 except KeyError:
                     token = generate_access_token()
-                    TOKENS_DICT[un] = token
+                    TOKENS_DICT[username] = token
                     return jsonify(access_token=token)
                 #Si lo tiene, comprobamos su fecha de caducidad, si ha expirado, los eliminamos de ambos json y generamos unos nuevos
-                if verify_token(token,un):
-                    return jsonify(access_token=TOKENS_DICT[un])
+                if verify_token(token,username):
+                    return jsonify(access_token=TOKENS_DICT[username])
                 
                 else:
-                    del(TOKENS_DICT[un])
-                    token = generate_access_token(un)
-                    TOKENS_DICT[un] = token
+                    del(TOKENS_DICT[username])
+                    token = generate_access_token(username)
+                    TOKENS_DICT[username] = token
                     return jsonify(access_token=token)
             else:
                 abort(401, message="Error, user or password incorrect")
