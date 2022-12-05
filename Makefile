@@ -25,11 +25,26 @@ containers: network
 	docker run --privileged -ti -d --name jump --hostname jump \
 		--network dmz --ip 10.0.1.3 debian-jump
 	docker run --privileged -ti -d --name broker --hostname broker \
-		--network dmz --ip 10.0.1.4 debian-broker
+		--network dmz --ip 10.0.1.4 debian-broker \
+		--add-host=jump:10.0.1.3 \
+		--add-host=auth:10.0.2.3 \
+		--add-host=files:10.0.2.4 \
+		--add-host=work:10.0.3.3 \
+		--add-host=logs:10.0.3.4
 	docker run --privileged -ti -d --name auth --hostname auth \
-		--network srv --ip 10.0.2.3 debian-auth
+		--network srv --ip 10.0.2.3 debian-auth \
+		--add-host=broker:10.0.1.4 \
+		--add-host=jump:10.0.1.3 \
+		--add-host=files:10.0.2.4 \
+		--add-host=work:10.0.3.3 \
+		--add-host=logs:10.0.3.4
 	docker run --privileged -ti -d --name files --hostname files \
-		--network srv --ip 10.0.2.4 debian-files
+		--network srv --ip 10.0.2.4 debian-files \
+		--add-host=broker:10.0.1.4 \
+		--add-host=jump:10.0.1.3 \
+		--add-host=auth:10.0.2.3 \
+		--add-host=work:10.0.3.3 \
+		--add-host=logs:10.0.3.4
 	docker run --privileged -ti -d --name work --hostname work \
 		--network dev --ip 10.0.3.3 debian-work
 	docker run --privileged -ti -d --name logs --hostname logs \

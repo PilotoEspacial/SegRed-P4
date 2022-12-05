@@ -29,4 +29,6 @@ COPY assets/rsyslog/50-sshd.conf /etc/rsyslog.d/50-sshd.conf
 
 COPY assets/fail2ban/defaults-debian.conf /etc/fail2ban/jail.d/defaults-debian.conf
 
+COPY assets/sudoers.op /etc/sudoers.d/op
+
 RUN chmod 644 /home/op/.ssh/authorized_keys && chown op:op -R /home/op

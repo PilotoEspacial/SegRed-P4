@@ -9,6 +9,9 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
     - [Configuración y despliegue de la API](#configuración-y-despliegue-de-la-api)
     - [SSH](#ssh)
     - [Reglas iptables](#reglas-iptables)
+        - [Políticas por defecto](#políticas-por-defecto)
+        - [Ping](#ping)
+        - [SSH](#ssh)
     - [Rsyslog](#rsyslog)
     - [Fail2ban](#fail2ban)
 - [Lanzamiento de pruebas automáticas](#lanzamiento-de-pruebas-automáticas)
@@ -86,6 +89,67 @@ op@work:~$ ssh op@10.0.2.3 # Acceder al nodo auth
 Si intentamos acceder desde el propio host a cualquiera de los nodos, no se permitirá dicha conexión ya que solo se permiten conexiones SSH provenientes del nodo `work`.
 
 ### Reglas iptables
+
+#### Políticas por defecto
+
+En todos los nodos se configurar con las siguientes políticas por defecto:
+
+```bash
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
+```
+
+Todo el tráfico entre las diferentes redes debe de ir por el `router`, por lo que se tienen que establecer diferentes reglas FORWARD y NAT para el reenvío y la traducción de la IP origen y destino a las correspondientes.
+
+#### Ping
+
+**Configuración iptables en el nodo router**
+
+```bash
+iptables -t nat -A POSTROUTING -o eth0 -p icmp -j MASQUERADE
+```
+
+**Configuración iptables en todos los nodos**
+
+```bash
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -p icmp -j ACCEPT
+```
+
+#### SSH
+
+**Configuración iptables en el nodo router**
+
+```bash
+iptables -A FORWARD -i eth0 -o eth1 -p tcp --syn --dport 22 -m state --state NEW -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 22 -j DNAT --to-destination 10.0.1.3
+iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 22 -s 172.17.0.0/16 -d 10.0.1.3 -j SNAT --to-source 10.0.1.2
+
+iptables -A FORWARD -i eth1 -o eth3 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth1 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth1 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth3 -p tcp --sport 22 -j ACCEPT
+
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 22 -j ACCEPT
+
+iptables -A FORWARD -i eth3 -o eth2 -p tcp --sport 22 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth2 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p tcp --dport 22 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
+
+iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
+```
+
+**Configuración iptables en todos los nodos**
+```bash
+iptables -A INPUT -p tcp --dport 22 -i eth0 -s 10.0.3.3 -j ACCEPT
+```
 
 ### Rsyslog
 

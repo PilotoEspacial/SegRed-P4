@@ -14,6 +14,7 @@ iptables -A INPUT -p icmp -j ACCEPT
 iptables -A FORWARD -p icmp -j ACCEPT
 iptables -t nat -A POSTROUTING -o eth0 -p icmp -j MASQUERADE
 
+# SSH
 iptables -A FORWARD -i eth0 -o eth1 -p tcp --syn --dport 22 -m state --state NEW -j ACCEPT
 iptables -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -i eth1 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
@@ -25,23 +26,33 @@ iptables -A FORWARD -i eth3 -o eth1 -p tcp --sport 22 -j ACCEPT
 iptables -A FORWARD -i eth3 -o eth1 -p tcp --dport 22 -j ACCEPT
 iptables -A FORWARD -i eth1 -o eth3 -p tcp --sport 22 -j ACCEPT
 
-# Aceptar trafico ssh entre dmz(eth1) y dev(eth2)
-# dmz -> dev 
 iptables -A FORWARD -i eth1 -o eth2 -p tcp --dport 22 -j ACCEPT
 iptables -A FORWARD -i eth1 -o eth2 -p tcp --sport 22 -j ACCEPT
-# dev -> dmz
 iptables -A FORWARD -i eth2 -o eth1 -p tcp --sport 22 -j ACCEPT
 iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 22 -j ACCEPT
 
-# Aceptar trafico ssh entre srv(eth3) y dev(eth1)
-# srv -> dev
 iptables -A FORWARD -i eth3 -o eth2 -p tcp --sport 22 -j ACCEPT
 iptables -A FORWARD -i eth3 -o eth2 -p tcp --dport 22 -j ACCEPT
-# dev -> srv
 iptables -A FORWARD -i eth2 -o eth3 -p tcp --dport 22 -j ACCEPT
 iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
 
 iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
+
+# Rsyslog forwarding
+iptables -A FORWARD -i eth1 -o eth3 -p udp --dport 514 -j ACCEPT
+#iptables -A FORWARD -i eth3 -o eth1 -p udp --sport 514 -j ACCEPT
+#iptables -A FORWARD -i eth3 -o eth1 -p udp --dport 514 -j ACCEPT
+#iptables -A FORWARD -i eth1 -o eth3 -p udp --sport 514 -j ACCEPT
+
+#iptables -A FORWARD -i eth1 -o eth2 -p udp --dport 514 -j ACCEPT
+#iptables -A FORWARD -i eth1 -o eth2 -p udp --sport 514 -j ACCEPT
+#iptables -A FORWARD -i eth2 -o eth1 -p udp --sport 514 -j ACCEPT
+#iptables -A FORWARD -i eth2 -o eth1 -p udp --dport 514 -j ACCEPT
+
+#iptables -A FORWARD -i eth3 -o eth2 -p udp --sport 514 -j ACCEPT
+#iptables -A FORWARD -i eth3 -o eth2 -p udp --dport 514 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p udp --dport 514 -j ACCEPT
+#iptables -A FORWARD -i eth2 -o eth3 -p udp --sport 514 -j ACCEPT
 
 service ssh start
 service rsyslog start
