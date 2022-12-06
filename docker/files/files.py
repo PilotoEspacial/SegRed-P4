@@ -15,7 +15,7 @@ PORT = 5000
 
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
-AUTH_SERVER = "http://10.0.2.4:5000/"
+AUTH_SERVER = "http://10.0.2.3:5000/"
 TOKENS_DICT = {}
 USERS_PATH = "users/"
 
@@ -30,15 +30,9 @@ def check_authorization_header(user_id):
             abort(400, message="Authorization header must be: token <user-auth-token>")
 
         token = header[1]
-        print("token: ",token)
+
+        return token
         
-        response = requests.get(AUTH_SERVER +"/tokens",{"username" : user_id, "token" : token}, verify=False)
-        
-        print(response.status_code)
-        if (response.status_code != 200):
-            return response.status_code
-        else:
-            return True
     except Exception as err:
         print("Error: ", err)
 
@@ -46,19 +40,22 @@ class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
         ''' Process GET request '''
-        status = check_authorization_header(user_id)
 
-        if status == 200 :
+        token=check_authorization_header(user_id)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        
+        print("\nAuth response: ", response.status_code)
+        
+        if (response.status_code == 200):
             if not os.path.exists(USERS_PATH+user_id+"/"+doc_id+".json"):
                 abort(404, message="The file does not exist")
             else:
                 json_file_name = USERS_PATH + user_id + "/" + doc_id + ".json"
                 with open(json_file_name) as json_file:
                     data = json.load(json_file) 
-
                 return data
         else:
-            abort(401, message="Token is not correct "+ str(status))
+            abort(401, message="Token is not correct "+ str(response.status_code))
     
     def post(self, user_id, doc_id):
         ''' Process POST request '''

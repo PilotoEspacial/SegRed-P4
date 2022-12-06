@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 from flask import jsonify, Flask, request
-from flask_restful import Resource, Api, abort
-import os, hashlib
-from time import ctime
+from flask_restful import Resource, Api, abort, reqparse
+import os, hashlib, uuid
 from datetime import datetime, timedelta
 import jwt
 
@@ -16,31 +15,41 @@ IP_HOST = "10.0.2.3"
 PORT = 5000
 
 TOKENS_DICT = {}
-EXP_TOKEN = {}
 USERS_PATH = "users/"
 MINUTES = 5
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
-def verify_token(username, token):
-        
-        try:
-            data = jwt.decode(token, KEY, algorithms=['HS256'])
-            exp = datetime.fromtimestamp(data['exp'])
 
-            if exp < datetime.utcnow():
+token_check_args = reqparse.RequestParser()
+token_check_args.add_argument('username', type=str, help="Username required", required=True)
+token_check_args.add_argument('token', type=str, help="Token required", required=True)
+
+'''Global classes'''
+def verify_token(username, token):
+
+        try:
+            print("Me quiero morir")
+            payload = jwt.decode(token, KEY, algorithms=['HS256'])
+            date_expired = datetime.fromtimestamp(payload['exp'])
+            print("Payload: ", payload)
+            print("Expired: ", date_expired)
+
+            if date_expired < datetime.utcnow():
                 print('Token expired')
                 raise jwt.ExpiredSignatureError
 
-            if data['username'] != username:
+            if payload['username'] != username:
                 print('Usuario no coincide con el token')
                 raise jwt.InvalidTokenError
             
             return True
+        except jwt.ExpiredSignatureError as err:
+            abort(401, message="Token is not correct")
+            #print("Error:", err)
+            #return False
         
-        except jwt.ExpiredSignatureError:
-            return False
-        
-        except jwt.InvalidTokenError:
+        except jwt.InvalidTokenError as err:
+            print("Error:", err)
             return False
 
 def check_directories():
@@ -160,7 +169,7 @@ class Login(Resource):
                     TOKENS_DICT[username] = token
                     return jsonify(access_token=token)
                 #Si lo tiene, comprobamos su fecha de caducidad, si ha expirado, los eliminamos de ambos json y generamos unos nuevos
-                if verify_token(token,username):
+                if verify_token(username, token):
                     return jsonify(access_token=TOKENS_DICT[username])
                 
                 else:
@@ -172,10 +181,13 @@ class Login(Resource):
                 abort(401, message="Error, user or password incorrect")
 
 class Authorize(Resource):
+
     def get(self):
-        json_data = request.get_json(force=True)
-        username = json_data['username']
-        token = json_data['token']
+        print("Hasta aqui hemos llegao")
+        
+        username = request.args.get('username')
+        token = request.args.get('token')
+
         if verify_token(username, token):
             return {}, 200 # Token matches
         else:
@@ -184,7 +196,7 @@ class Authorize(Resource):
 
 api.add_resource(Login, '/login')
 api.add_resource(SignUp, '/signup')
-api.add_resource(Authorize, '/token')
+api.add_resource(Authorize, '/checking')
 
 if __name__ == '__main__':
     check_directories()
