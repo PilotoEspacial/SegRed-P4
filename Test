@@ -1,9 +1,28 @@
+#!/bin/bash
+
+echo -ne "\nTrying logging with user $1 with password $2, press enter to continue..."
+read press_enter
 
 #Login
-curl http:/10.0.2.3:5000/login -d '{"username":"p", "password":"p"}'
+curl http:/10.0.2.3:5000/login -d '{"username":"'$t1'", "password":"'$t2'"}'
 
 #Signup
-curl http:/10.0.2.3:5000/signup -d '{"username":"p", "password":"p"}'
+curl http:/10.0.2.3:5000/signup -d '{"username":"prueba1", "password":"p"}'
 
+#Crear
+curl http:/10.0.2.4:5000/p/prueba -H "Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InAiLCJleHAiOjE2NzA0NTIzNDJ9.sO5BLOIfCN_jZO1z2Akz7rsB07gJFfNm06-Qpnq7kt0" -d '{"doc_content": {"fruit": "Apple", "size": "Large", "color": "Red"}}' -X POST
+
+#get file
+curl http:/10.0.2.4:5000/prueba1/prueba -H "Authorization: token $token"
+
+#put
+curl http:/10.0.2.4:5000/prueba1/prueba -H "Authorization: token $token" -d '{"doc_content": {"fruit": "Apple", "size": "Small", "color": "Green", "flavour": "Bad"}}' -X PUT
+
+#delete
+curl http:/10.0.2.4:5000/prueba1/prueba -H "Authorization: token $token" -X DELETE
+
+#alldocs
+
+ctrl+p ctrl+q
 #Auth
 curl http://10.0.2.4:5000/p/p -H "Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InAiLCJleHAiOjE2NzAzNTkyMDd9._Gz2zDC1YmpZI9nJNrGEzdfEjZzhJQTESw7sQW-IZtU"

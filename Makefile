@@ -18,6 +18,7 @@ network:
 containers: network
 	@echo "***containers"
 	docker run --privileged -ti -d --name router --hostname router debian-router
+	
 	docker network connect dmz router
 	docker network connect srv router
 	docker network connect dev router

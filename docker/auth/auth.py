@@ -4,6 +4,7 @@ from flask import jsonify, Flask, request
 from flask_restful import Resource, Api, abort, reqparse
 import os, hashlib, uuid
 from datetime import datetime, timedelta
+import requests
 import jwt
 
 app = Flask(__name__)
@@ -12,6 +13,7 @@ api = Api(app)
 'Global variables'
 
 IP_HOST = "10.0.2.3"
+FILE_SERVER = "http://10.0.2.4:5000/space"
 PORT = 5000
 
 TOKENS_DICT = {}
@@ -25,14 +27,21 @@ token_check_args.add_argument('username', type=str, help="Username required", re
 token_check_args.add_argument('token', type=str, help="Token required", required=True)
 
 '''Global classes'''
+
+def verify_user(username):
+    for user in TOKENS_DICT.keys():
+        if username == user:
+            return True
+        else:
+            return False
+
 def verify_token(username, token):
 
         try:
-            print("Me quiero morir")
             payload = jwt.decode(token, KEY, algorithms=['HS256'])
             date_expired = datetime.fromtimestamp(payload['exp'])
-            print("Payload: ", payload)
-            print("Expired: ", date_expired)
+            #print("Payload: ", payload)
+            #print("Expired: ", date_expired)
 
             if date_expired < datetime.utcnow():
                 print('Token expired')
@@ -183,16 +192,16 @@ class Login(Resource):
 class Authorize(Resource):
 
     def get(self):
-        print("Hasta aqui hemos llegao")
         
         username = request.args.get('username')
         token = request.args.get('token')
-
-        if verify_token(username, token):
-            return {}, 200 # Token matches
+        if verify_user(username):
+            if verify_token(username, token):
+                return {}, 200 # Token matches
+            else:
+                return {"Error": 401, "message": "Wrong token"}
         else:
-            return {"Error": 401, "message": "Wrong token or username"}
-
+            abort(401, message = "User not found")
 
 api.add_resource(Login, '/login')
 api.add_resource(SignUp, '/signup')
