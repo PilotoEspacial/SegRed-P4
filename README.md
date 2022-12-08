@@ -177,6 +177,26 @@ Además, añadimos una plantilla ([50-remote-logs.conf](/docker/logs/assets/50-r
 
 En los clientes añadiremos dos plantillas, una para reenviar los logs al servidor de logs y además almacenarlos en manera local ([20-forward-logs.conf](/docker/assets/rsyslog/20-forward-logs.conf)) y uno específico para el servicio de ssh ([50-sshd.conf](/docker/assets/rsyslog/50-sshd.conf)).
 
+Por último, es necesario aplicar una serie de reglas iptables para el reenvio de las conexiones desde el router. Estas son reglas se aplican en el router para aceptar la conexión al puerto 514 con el protocolo UDP y redirigirlo a la interfaz eth3, que es donde se encuentra el nodo logs.
+
+```bash
+iptables -A FORWARD -i eth1 -o eth3 -p udp --dport 514 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p udp --dport 514 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth3 -p udp --dport 514 -j ACCEPT
+
+iptables -A INPUT -p udp --dport 514 -i eth3 -s 10.0.3.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth2 -s 10.0.2.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth1 -s 10.0.1.0/24 -j ACCEPT
+```
+
+Y en el nodo logs, es necesario aceptar el tráfico entrante por ese mismo puerto, de las diferentes redes que forman el sistema.
+
+```bash
+iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.1.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.2.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.3.0/24 -j ACCEPT
+```
+
 ### Fail2ban
 
 Para evitar ataques de fuerza bruta, se utiliza el servicio de `fail2ban` para banear IPs si exceden un número de intentos a la hora de logear en cualquiera de los nodos mediante SSH. Para ello es necesario tener al menos el un log local monitorize los intentos de autenticación (auth.log). Por eso en la configuración de `rsyslog` se almacenan los logs en un servidor centralizado, pero además, se almacenan de manera local.
