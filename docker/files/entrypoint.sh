@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Politicas por defecto
-iptables -P INPUT ACCEPT
-iptables -P FORWARD ACCEPT
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
 
 # Ping

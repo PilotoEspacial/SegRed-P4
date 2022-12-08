@@ -1,18 +1,21 @@
 #!/bin/bash
 
 # Politicas por defecto
-iptables -P INPUT ACCEPT
-iptables -P FORWARD ACCEPT
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
 iptables -P OUTPUT ACCEPT
 
 # Ping
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -p icmp -j ACCEPT
 
+# Puerto 5000
+iptables -A input -p tcp -dport 5000 -i eth0 -s 10.0.1.4 -j ACCEPT
+iptables -A input -p tcp -dport 5000 -i eth0 -s 10.0.2.4 -j ACCEPT
+
 #HTTP
 iptables -A INPUT -p tcp --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 80 -m state --state ESTABLISHED,RELATED -j ACCEPT
-
 iptables -A OUTPUT -p tcp --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p tcp --sport 80 -m state --state ESTABLISHED,RELATED -j ACCEPT
 

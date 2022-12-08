@@ -9,7 +9,6 @@ iptables -P OUTPUT ACCEPT
 
 # Ping
 iptables -A INPUT -i lo -j ACCEPT
-
 iptables -A INPUT -p icmp -j ACCEPT
 iptables -A FORWARD -p icmp -j ACCEPT
 iptables -t nat -A POSTROUTING -o eth0 -p icmp -j MASQUERADE
@@ -48,6 +47,22 @@ iptables -A FORWARD -i eth2 -o eth3 -p tcp --dport 22 -j ACCEPT
 iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
 
 iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
+
+#### Servicios (5000)
+iptables -A FORWARD -i eth0 -o eth1 -p tcp --syn --dport 5000 -m state --state NEW -j ACCEPT
+
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 5000 -j DNAT --to-destination 10.0.1.4   #Manda trafico https al nodo broker
+iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 5000 -s 172.17.0.0/16 -d 10.0.1.4 -j SNAT --to-source 10.0.1.2 #Manda trafico https al nodo broker cambiando la source ip
+
+# Aceptar trafico https entre dmz(eth1) y srv(eth3)
+# dmz -> srv 
+iptables -A FORWARD -i eth1 -o eth3 -p tcp --dport 5000 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth3 -p tcp --sport 5000 -j ACCEPT
+# srv -> dmz
+iptables -A FORWARD -i eth3 -o eth1 -p tcp --sport 5000 -j ACCEPT 
+iptables -A FORWARD -i eth3 -o eth1 -p tcp --dport 5000 -j ACCEPT 
+
+
 
 # Rsyslog
 iptables -A FORWARD -i eth1 -o eth3 -p udp --dport 514 -j ACCEPT

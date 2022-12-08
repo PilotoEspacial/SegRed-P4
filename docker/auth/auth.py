@@ -13,7 +13,7 @@ api = Api(app)
 'Global variables'
 
 IP_HOST = "10.0.2.3"
-FILE_SERVER = "http://10.0.2.4:5000/space"
+FILE_SERVER = "http://file:5000/space"
 PORT = 5000
 
 TOKENS_DICT = {}
@@ -127,6 +127,9 @@ class SignUp(Resource):
             json_data = request.get_json(force=True)            
             username = json_data['username']
             password = json_data['password']
+            print("Username: ", username)
+            print("Password: ", password)
+            
         except KeyError:
             abort(400, message="Arguments must be 'username' and 'password'")
         except:

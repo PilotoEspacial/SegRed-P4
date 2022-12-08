@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-import uuid, os, hashlib, json
-from flask import jsonify, Flask, request
+import requests
+from flask import Flask, jsonify
 from flask_restful import Resource, Api, abort
-from time import ctime
-from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -14,8 +13,8 @@ app.config['SECRET_KEY'] = 'SegRed-P3'
 IP_HOST = "10.0.1.4"
 PORT = 5000
 
-IP_AUTH = "10.0.2.3"
-IP_FILES = "10.0.2.4"
+AUTH = "http://auth:5000"
+FILES = "files"
 
 __version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
@@ -31,6 +30,14 @@ class Version(Resource):
 
 class SignUp(Resource):
     ''' SignUp class '''
+    def post(self, username, password):
+        response = requests.post(AUTH, {},{"username":username, "password": password}, verify=False)
+        print("Auth response: ",response.status_code)
+
+        if(response.status_code == 200):
+            return jsonify(access_token = response.json())
+        else:
+            abort(response.status_code, message = "Error in auth server")
 
 class Login(Resource):
         '''Login class'''
@@ -39,7 +46,6 @@ class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
         ''' Process GET request ''' 
-
     
     def post(self, user_id, doc_id):
         ''' Process POST request '''
