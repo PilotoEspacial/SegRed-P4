@@ -49,6 +49,15 @@ iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
 
 iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
 
+# Rsyslog
+iptables -A FORWARD -i eth1 -o eth3 -p udp --dport 514 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -p udp --dport 514 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth3 -p udp --dport 514 -j ACCEPT
+
+iptables -A INPUT -p udp --dport 514 -i eth3 -s 10.0.3.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth2 -s 10.0.2.0/24 -j ACCEPT
+iptables -A INPUT -p udp --dport 514 -i eth1 -s 10.0.1.0/24 -j ACCEPT
+
 service ssh start
 service rsyslog start
 
