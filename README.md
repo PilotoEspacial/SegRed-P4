@@ -55,7 +55,15 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 
 ### SSH
 
-Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. Además, se debe utilizar el usuario jump para poder iniciar el primer salto. 
+Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. 
+
+Además, se debe utilizar el usuario jump para poder iniciar el primer salto, por que se establecen una serie de reglas para que se permita la conexión de determinados usuarios. Esta configuración se realiza en el archivo de configuración de ssh del nodo jump.
+
+```bash
+echo -e "Match Address 10.0.1.2\n  AllowUsers jump\n" >> /etc/ssh/sshd_config
+echo -e "Match Address 10.0.3.3\n  AllowUsers op\n" >> /etc/ssh/sshd_config
+echo -e "Match Address 10.0.3.3\n  AllowUsers dev\n" >> /etc/ssh/sshd_config
+```
 
 Primero es necesario añadir la clave privada del usuario a nuestro `ssh-agent`, de la siguiente manera:
 
