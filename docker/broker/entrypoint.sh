@@ -17,6 +17,7 @@ iptables -A INPUT -p udp --sport 53 -i eth0 -j ACCEPT
 
 #### HTTP (80)
 iptables -A INPUT -p tcp --sport 80 -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
 #### Servicios (5000)
 iptables -A INPUT -p tcp --dport 5000 -i eth0 -s 10.0.1.2 -j ACCEPT  # Aceptamos trafico del router

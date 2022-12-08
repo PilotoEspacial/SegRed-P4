@@ -1,5 +1,12 @@
 #!/bin/bash
 
+
+
+#Version
+curl http://172.17.0.2:5000/version 
+
+#
+
 echo -ne "\nTrying logging with user $1 with password $2, press enter to continue..."
 read press_enter
 
@@ -7,7 +14,7 @@ read press_enter
 curl http:/10.0.2.3:5000/login -d '{"username":"'$t1'", "password":"'$t2'"}'
 
 #Signup
-curl http:/10.0.2.3:5000/signup -d '{"username":"prueba1", "password":"p"}'
+curl http:/172.17.0.2:5000/signup -d '{"username":"prueba1", "password":"p"}'
 
 #Crear
 curl http:/10.0.2.4:5000/prueba1/prueba -H "Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InAiLCJleHAiOjE2NzA0NTIzNDJ9.sO5BLOIfCN_jZO1z2Akz7rsB07gJFfNm06-Qpnq7kt0" -d '{"doc_content": {"fruit": "Apple", "size": "Large", "color": "Red"}}' -X POST

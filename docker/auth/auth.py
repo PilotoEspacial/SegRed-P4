@@ -123,6 +123,8 @@ class SignUp(Resource):
 
     def post(self):
         ''' Process POST request '''
+
+        print("Llegamos")
         try:
             json_data = request.get_json(force=True)            
             username = json_data['username']

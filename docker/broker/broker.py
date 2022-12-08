@@ -2,7 +2,7 @@
 
 import requests
 from flask import Flask, jsonify
-from flask_restful import Resource, Api, abort
+from flask_restful import Resource, Api, abort, request
 
 
 app = Flask(__name__)
@@ -14,7 +14,8 @@ IP_HOST = "10.0.1.4"
 PORT = 5000
 
 AUTH = "http://auth:5000"
-FILES = "files"
+
+FILES = "http://files:5000"
 
 __version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
@@ -30,8 +31,15 @@ class Version(Resource):
 
 class SignUp(Resource):
     ''' SignUp class '''
-    def post(self, username, password):
-        response = requests.post(AUTH, {},{"username":username, "password": password}, verify=False)
+    def post(self):
+
+        json_data = request.get_json(force=True)            
+        username = json_data['username']
+        password = json_data['password']
+
+        print("Aqui llegamos")
+        response = requests.post(AUTH + "/signup",{"username":username, "password": password}, verify=False)
+
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
