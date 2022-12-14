@@ -123,14 +123,11 @@ class SignUp(Resource):
 
     def post(self):
         ''' Process POST request '''
-
-        print("Llegamos")
+        
         try:
             json_data = request.get_json(force=True)            
             username = json_data['username']
             password = json_data['password']
-            print("Username: ", username)
-            print("Password: ", password)
             
         except KeyError:
             abort(400, message="Arguments must be 'username' and 'password'")
@@ -181,7 +178,7 @@ class Login(Resource):
                 except KeyError:
                     token = generate_access_token()
                     TOKENS_DICT[username] = token
-                    return jsonify(access_token=token)
+                    return jsonify(token)
                 #Si lo tiene, comprobamos su fecha de caducidad, si ha expirado, los eliminamos de ambos json y generamos unos nuevos
                 if verify_token(username, token):
                     return jsonify(access_token=TOKENS_DICT[username])
@@ -190,7 +187,7 @@ class Login(Resource):
                     del(TOKENS_DICT[username])
                     token = generate_access_token(username)
                     TOKENS_DICT[username] = token
-                    return jsonify(access_token=token)
+                    return jsonify(token)
             else:
                 abort(401, message="Error, user or password incorrect")
 

@@ -3,8 +3,8 @@
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
 # Politicas por defecto
-iptables -P INPUT DROP
-iptables -P FORWARD DROP
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # Ping

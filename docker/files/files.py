@@ -75,7 +75,7 @@ class User(Resource):
             else:
                 try:
                     json_data = request.get_json(force=True)
-                    doc_content = json_data['doc_content']
+                    #doc_content = json_data['doc_content']
                 except KeyError:
                     abort(400, message="Argument must be 'doc_content'")
                 except:
@@ -83,7 +83,7 @@ class User(Resource):
                 else:
                     os.mkdir(USERS_PATH + "/" + user_id)
                     json_file_name = USERS_PATH + "/" + user_id + "/" + doc_id + ".json"
-                    json_string = json.dumps(doc_content)
+                    json_string = json.dumps(json_data)
                     
                     with open(json_file_name, 'w') as outfile:
                         outfile.write(json_string)
