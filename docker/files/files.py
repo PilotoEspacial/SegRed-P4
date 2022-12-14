@@ -70,6 +70,9 @@ class User(Resource):
 
         if (response.status_code == 200):
             
+            if not os.path.exists(USERS_PATH + "/" + user_id):
+                os.mkdir(USERS_PATH+ "/" +user_id)
+            
             if os.path.exists( USERS_PATH + "/" + user_id + "/" + doc_id + ".json" ):
                 abort(405, message="The file already exists")
             else:
@@ -81,7 +84,7 @@ class User(Resource):
                 except:
                     abort(400, message="Wrong format of the file")
                 else:
-                    os.mkdir(USERS_PATH + "/" + user_id)
+                    
                     json_file_name = USERS_PATH + "/" + user_id + "/" + doc_id + ".json"
                     json_string = json.dumps(json_data)
                     
@@ -100,6 +103,9 @@ class User(Resource):
         ''' Process PUT request '''
 
         token = check_authorization_header()
+
+        print("Token: ",token)
+        print("user: ",user_id)
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
 
         print("\nAuth response: ", response.status_code)
@@ -128,7 +134,7 @@ class User(Resource):
 
                     return jsonify(size=file_size.st_size)
         else:
-            abort(401, message="Token is not correct")
+            abort(401, message=response.reason)
     
     def delete(self, user_id, doc_id):
         ''' Process DELETE request '''

@@ -3,6 +3,7 @@
 import requests
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, abort, request
+import json
 
 
 app = Flask(__name__)
@@ -61,7 +62,8 @@ class SignUp(Resource):
         if(response.status_code == 200):
             return jsonify(access_token = response.json())
         else:
-            abort(500, message = "Error en Auth Server")
+            response_dict = json.loads(response.text)
+            abort(response.status_code, message = response_dict["message"])
 
 class Login(Resource):
     '''Login class'''
@@ -77,13 +79,14 @@ class Login(Resource):
         if(response.status_code == 200):
             return jsonify(response.json())
         else:
-            abort(500, message = "Error en Auth Server")
+            response_dict = json.loads(response.text)
+            abort(400, message=response_dict["message"])
 class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
         ''' Process GET request ''' 
 
-        json_data = request.get_json(force=True)            
+        #json_data = request.get_json(force=True)            
         #username = json_data['username']
         token = check_authorization_header()
 
@@ -97,19 +100,21 @@ class User(Resource):
 
     def post(self, user_id, doc_id):
         ''' Process POST request '''
-        #json_data = request.get_json(force=True)            
-        #username = json_data['username']
         token = check_authorization_header()
         json_data = request.get_json(force=True)
         doc_content = json_data['doc_content']
 
         response = requests.post(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=False, timeout=10)
         print("Auth response: ",response.status_code)
+        
+        #response_dict = json.loads(response.text)
+        print(response.text)
 
         if(response.status_code == 200):
             return jsonify(response.json())
         else:
-            abort(response.status_code, message = "Error en Files Server")
+            response_dict = json.loads(response.text)
+            abort(400, message=response_dict["message"])
 
     def put(self, user_id, doc_id):
         ''' Process PUT request '''
@@ -119,9 +124,10 @@ class User(Resource):
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
-            return jsonify(access_token = response.json())
+            return jsonify(response.json())
         else:
-            abort(500, message = "Error en Auth Server")
+            response_dict = json.loads(response.text)
+            abort(400, message=response_dict["message"])
 
     
     def delete(self, user_id, doc_id):
@@ -132,7 +138,7 @@ class User(Resource):
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
-            return jsonify(access_token = response.json())
+            return jsonify(response.json())
         else:
             abort(500, message = "Error en Auth Server")
 
@@ -146,7 +152,7 @@ class AllDocs(Resource):
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
-            return jsonify(access_token = response.json())
+            return jsonify(response.json())
         else:
             abort(500, message = "Error en Auth Server")
 

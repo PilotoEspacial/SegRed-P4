@@ -38,6 +38,7 @@ def verify_user(username):
 def verify_token(username, token):
 
         try:
+            print("Token: ",token)
             payload = jwt.decode(token, KEY, algorithms=['HS256'])
             date_expired = datetime.fromtimestamp(payload['exp'])
             #print("Payload: ", payload)
@@ -201,7 +202,7 @@ class Authorize(Resource):
             if verify_token(username, token):
                 return {}, 200 # Token matches
             else:
-                return {"Error": 401, "message": "Wrong token"}
+                abort(401, message = "Wrong token")
         else:
             abort(401, message = "User not found")
 
