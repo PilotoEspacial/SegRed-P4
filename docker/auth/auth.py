@@ -38,6 +38,7 @@ def verify_user(username):
 def verify_token(username, token):
 
         try:
+            print("username: ",username)
             print("Token: ",token)
             payload = jwt.decode(token, KEY, algorithms=['HS256'])
             date_expired = datetime.fromtimestamp(payload['exp'])
