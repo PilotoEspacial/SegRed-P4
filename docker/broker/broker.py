@@ -85,18 +85,14 @@ class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
         ''' Process GET request ''' 
-
-        #json_data = request.get_json(force=True)            
-        #username = json_data['username']
         token = check_authorization_header()
-
-        response = requests.get(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, verify=False, timeout=10)
-        print("Auth response: ",response.status_code)
-
+        response = requests.get(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token ' + token}, verify=False, timeout=10)
+    
         if(response.status_code == 200):
             return jsonify(response.json())
         else:
-            abort(500, message = "Error en Auth Server")
+            response_dict = json.loads(response.text)
+            abort(response.status_code, message = response_dict["message"])
 
     def post(self, user_id, doc_id):
         ''' Process POST request '''
@@ -105,29 +101,26 @@ class User(Resource):
         doc_content = json_data['doc_content']
 
         response = requests.post(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=False, timeout=10)
-        print("Auth response: ",response.status_code)
-        
-        #response_dict = json.loads(response.text)
-        print(response.text)
 
         if(response.status_code == 200):
             return jsonify(response.json())
         else:
             response_dict = json.loads(response.text)
-            abort(400, message=response_dict["message"])
+            abort(response.status_code, message=response_dict["message"])
 
     def put(self, user_id, doc_id):
         ''' Process PUT request '''
-
         token = check_authorization_header()
-        response = requests.put(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token},json={"doc_content": {"fruit": "Apple", "size": "Large", "color": "Red", "flavour":"acid like techno"}}, verify=False, timeout=10)
-        print("Auth response: ",response.status_code)
+        json_data = request.get_json(force=True)
+        doc_content = json_data['doc_content']
+
+        response = requests.put(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=False, timeout=10)
 
         if(response.status_code == 200):
             return jsonify(response.json())
         else:
             response_dict = json.loads(response.text)
-            abort(400, message=response_dict["message"])
+            abort(response.status_code, message=response_dict["message"])
 
     
     def delete(self, user_id, doc_id):
@@ -148,8 +141,8 @@ class AllDocs(Resource):
     def get(self, user_id):
         ''' Process GET AllDocs '''
         token = check_authorization_header()
-        response = requests.delete(FILES + "/" + user_id + "/_all_docs", headers={'Authorization':'token '+token}, verify=False, timeout=10)
-        print("Auth response: ",response.status_code)
+        response = requests.get(FILES + "/" + user_id + "/_all_docs", headers={'Authorization':'token '+token}, verify=False, timeout=10)
+        #print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
             return jsonify(response.json())

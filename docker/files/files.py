@@ -43,7 +43,6 @@ class User(Resource):
     ''' User class '''
     def get(self, user_id, doc_id):
         ''' Process GET request '''
-
         token = check_authorization_header()
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
         
@@ -51,6 +50,7 @@ class User(Resource):
         
         if (response.status_code == 200):
             if not os.path.exists(USERS_PATH + "/" + user_id + "/" + doc_id + ".json"):
+                ###AQUIIIIIII
                 abort(404, message="The file does not exist")
             else:
                 json_file_name = USERS_PATH + "/" + user_id + "/" + doc_id + ".json"
@@ -65,7 +65,6 @@ class User(Resource):
 
         token = check_authorization_header()
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
-
         print("\nAuth response: ", response.status_code)
 
         if (response.status_code == 200):
@@ -101,32 +100,28 @@ class User(Resource):
         
     def put(self, user_id, doc_id):
         ''' Process PUT request '''
-
         token = check_authorization_header()
-
-        print("Token: ",token)
-        print("user: ",user_id)
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
-
         print("\nAuth response: ", response.status_code)
-
         if (response.status_code == 200):
             # Delete json file
             if not os.path.exists(USERS_PATH + "/" + user_id + "/" + doc_id + ".json"):
                 abort(404, message="The file does not exists")
             else:
-                
                 # Create new json file
                 try:
                     json_data = request.get_json(force=True)
-                    doc_content = json_data['doc_content']
+                    #doc_content = json_data['doc_content']
+                    print("doc_contect: ",json_data)
+                except KeyError:
+                    abort(400, message="Argument must be 'doc_content'")
                 except:
                     abort(400, message="Wrong format of the file")
                 else:
                     json_file_name = USERS_PATH + "/" + user_id + "/" + doc_id + ".json"
-                
+
                     os.remove(json_file_name)
-                    json_string = json.dumps(doc_content)
+                    json_string = json.dumps(json_data)
                     with open(json_file_name, 'w') as outfile:
                         outfile.write(json_string)
 
@@ -140,7 +135,6 @@ class User(Resource):
         ''' Process DELETE request '''
         token = check_authorization_header()
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
-
         print("\nAuth response: ", response.status_code)
 
         if (response.status_code == 200):
@@ -149,13 +143,15 @@ class User(Resource):
             else:
                 json_file_name = USERS_PATH + "/" + user_id + "/" + doc_id + ".json"
                 os.remove(json_file_name)
-                return "{}"
+                
+                return jsonify({})
         else:
             abort(401, message="Token is not correct")
 
 class AllDocs(Resource):
     ''' AllDocs class '''
     def get(self, user_id):
+
         ''' Process GET request '''
         token = check_authorization_header()
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)

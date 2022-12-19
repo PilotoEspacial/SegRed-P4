@@ -94,6 +94,7 @@ def test_create_and_update_doc():
             data={"doc_content": {"username": u}},
             method="POST",
             token=token,
+            check=False
         )
         assert r.json()["size"]
 
@@ -130,11 +131,15 @@ def test_create_and_update_doc():
 
 
 def test_all_docs():
+
+    print("+++ Testing all docs... ")
+
     for u in USERS:
         token = login(u)
         r = _req(
             f"{u}/_all_docs",
             token=token,
+            check=False,
         )
         docs = r.json()
         assert len(docs) == 1
@@ -142,13 +147,17 @@ def test_all_docs():
 
 
 def test_delete_docs():
+    
+    print("+++ Testing deleting... ")
     for u in USERS:
         token = login(u)
         r = _req(
             f"{u}/doc{u}",
             method="DELETE",
             token=token,
+            check=False,
         )
+
         r = _req(
             f"{u}/doc{u}",
             token=token,

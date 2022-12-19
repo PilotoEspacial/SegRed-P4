@@ -29,21 +29,18 @@ token_check_args.add_argument('token', type=str, help="Token required", required
 '''Global classes'''
 
 def verify_user(username):
-    for user in TOKENS_DICT.keys():
+    for user in TOKENS_DICT:
         if username == user:
             return True
-        else:
-            return False
+    return False
 
 def verify_token(username, token):
 
         try:
-            print("username: ",username)
-            print("Token: ",token)
+            #print("username: ",username)
+            #print("Token: ",token)
             payload = jwt.decode(token, KEY, algorithms=['HS256'])
             date_expired = datetime.fromtimestamp(payload['exp'])
-            #print("Payload: ", payload)
-            #print("Expired: ", date_expired)
 
             if date_expired < datetime.utcnow():
                 print('Token expired')
@@ -55,8 +52,8 @@ def verify_token(username, token):
             
             return True
         except jwt.ExpiredSignatureError as err:
+            print("Error:", err)
             abort(401, message="Token is not correct")
-            #print("Error:", err)
             #return False
         
         except jwt.InvalidTokenError as err:
@@ -88,14 +85,16 @@ def generate_access_token(username):
 ''' Login class '''
 class SignUp(Resource):
     ''' SignUp class '''
+    
+    '''
     def create_directory(self, username):
-        ''' Create directory of user if does not exists '''
+        Create directory of user if does not exists
         if not os.path.isdir(USERS_PATH + username):
             try:
                 os.mkdir(USERS_PATH + username)
             except Exception:
                 abort(400, message="Error creating username space")
-
+    '''
     def register_user(self, username, password):
         ''' Register new user in shadow file '''
         shadow_file = open('.shadow', 'a')
@@ -140,7 +139,7 @@ class SignUp(Resource):
                 abort(409, message="Error, username {} already exists.".format(username))
             else:
                 self.register_user(username, password)
-                self.create_directory(username)
+                #self.create_directory(username)
 
                 token = generate_access_token(username)
                 TOKENS_DICT[username] = token
@@ -196,7 +195,6 @@ class Login(Resource):
 class Authorize(Resource):
 
     def get(self):
-        
         username = request.args.get('username')
         token = request.args.get('token')
         if verify_user(username):
