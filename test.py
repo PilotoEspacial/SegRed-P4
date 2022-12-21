@@ -143,7 +143,7 @@ def test_all_docs():
         )
         docs = r.json()
         assert len(docs) == 1
-        assert docs[f"doc#{u}"]["user"] == u
+        assert docs[f"doc{u}"]["user"] == u
 
 
 def test_delete_docs():
