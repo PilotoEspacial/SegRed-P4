@@ -166,6 +166,17 @@ def test_delete_docs():
         if r.ok:
             assert False, f'document should be removed'
 
+def easter_egg():
+    print("\n\n")
+    print("Test succesfully... Thanks for this course :)")
+    for i in range(1,30,2):
+        print(('^'*i).center(30))
+
+    for leg in range(3):
+        print(('|||').center(30))
+    print(('\_____/').center(30))
+    print(' '+30*'-')
+    print('($$$$) Merry Christmas & Happy New Year! ($$$$)')
 
 def main():
     tests = [
@@ -175,6 +186,7 @@ def main():
         test_create_and_update_doc,
         test_all_docs,
         test_delete_docs,
+        easter_egg,
     ]
     for t in tests:
         t()
