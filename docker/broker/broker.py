@@ -18,7 +18,10 @@ CERT_PEM = 'certs/broker.ssl.crt'
 KEY_PEM = 'keys/broker.ssl.key'
 
 AUTH = "https://auth:5000"
+AUTH_CERT = "certs/auth.ssl.crt"
+
 FILES = "https://files:5000"
+FILE_CERT = "certs/files.ssl.crt"
 
 __version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
@@ -58,7 +61,7 @@ class SignUp(Resource):
         username = json_data['username']
         password = json_data['password']
 
-        response = requests.post(AUTH + "/signup",json={"username":username, "password": password}, verify=False, timeout=10)
+        response = requests.post(AUTH + "/signup",json={"username":username, "password": password}, verify=AUTH_CERT, timeout=10)
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
@@ -75,7 +78,7 @@ class Login(Resource):
         username = json_data['username']
         password = json_data['password']
 
-        response = requests.post(AUTH + "/login",json={"username":username, "password": password}, verify=False, timeout=10)
+        response = requests.post(AUTH + "/login",json={"username":username, "password": password}, verify=AUTH_CERT, timeout=10)
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
@@ -88,7 +91,7 @@ class User(Resource):
     def get(self, user_id, doc_id):
         ''' Process GET request ''' 
         token = check_authorization_header()
-        response = requests.get(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token ' + token}, verify=False, timeout=10)
+        response = requests.get(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token ' + token}, verify=FILE_CERT, timeout=10)
     
         if(response.status_code == 200):
             return jsonify(response.json())
@@ -102,7 +105,7 @@ class User(Resource):
         json_data = request.get_json(force=True)
         doc_content = json_data['doc_content']
 
-        response = requests.post(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=False, timeout=10)
+        response = requests.post(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=FILE_CERT, timeout=10)
 
         if(response.status_code == 200):
             return jsonify(response.json())
@@ -116,7 +119,7 @@ class User(Resource):
         json_data = request.get_json(force=True)
         doc_content = json_data['doc_content']
 
-        response = requests.put(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=False, timeout=10)
+        response = requests.put(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, json=doc_content, verify=FILE_CERT, timeout=10)
 
         if(response.status_code == 200):
             return jsonify(response.json())
@@ -129,7 +132,7 @@ class User(Resource):
         ''' Process DELETE request '''
         
         token = check_authorization_header()
-        response = requests.delete(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, verify=False, timeout=10)
+        response = requests.delete(FILES + "/" + user_id + "/" + doc_id, headers={'Authorization':'token '+token}, verify=FILE_CERT, timeout=10)
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
@@ -143,7 +146,7 @@ class AllDocs(Resource):
     def get(self, user_id):
         ''' Process GET AllDocs '''
         token = check_authorization_header()
-        response = requests.get(FILES + "/" + user_id + "/_all_docs", headers={'Authorization':'token '+token}, verify=False, timeout=10)
+        response = requests.get(FILES + "/" + user_id + "/_all_docs", headers={'Authorization':'token '+token}, verify=FILE_CERT, timeout=10)
         #print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):

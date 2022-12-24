@@ -16,10 +16,11 @@ PORT = 5000
 CERT_PEM = 'certs/files.ssl.crt'
 KEY_PEM = 'keys/files.ssl.key'
 
-
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
 AUTH_SERVER = "http://auth:5000/"
+AUTH_CERT = "certs/auth.ssl.crt"
+
 TOKENS_DICT = {}
 USERS_PATH = "users"
 
@@ -48,7 +49,7 @@ class User(Resource):
     def get(self, user_id, doc_id):
         ''' Process GET request '''
         token = check_authorization_header()
-        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
         
         print("\nAuth response: ", response.status_code)
         
@@ -68,7 +69,7 @@ class User(Resource):
         ''' Process POST request '''
 
         token = check_authorization_header()
-        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
         print("\nAuth response: ", response.status_code)
 
         if (response.status_code == 200):
@@ -105,7 +106,7 @@ class User(Resource):
     def put(self, user_id, doc_id):
         ''' Process PUT request '''
         token = check_authorization_header()
-        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
         print("\nAuth response: ", response.status_code)
         if (response.status_code == 200):
             # Delete json file
@@ -138,7 +139,7 @@ class User(Resource):
     def delete(self, user_id, doc_id):
         ''' Process DELETE request '''
         token = check_authorization_header()
-        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
         print("\nAuth response: ", response.status_code)
 
         if (response.status_code == 200):
@@ -158,7 +159,7 @@ class AllDocs(Resource):
 
         ''' Process GET request '''
         token = check_authorization_header()
-        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=False)
+        response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
 
         print("\nAuth response: ", response.status_code)
 
@@ -194,4 +195,4 @@ if __name__ == '__main__':
     if not os.path.exists(USERS_PATH):
         os.mkdir(USERS_PATH)
 
-    app.run(debug=True, host=IP_HOST, port=PORT)
+    app.run(debug=True, ssl_context=(CERT_PEM,KEY_PEM),host=IP_HOST, port=PORT)
