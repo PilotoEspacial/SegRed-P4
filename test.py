@@ -9,7 +9,7 @@ os.environ["REQUESTS_CA_BUNDLE"] = "/etc/ssl/certs"
 
 warnings.filterwarnings("ignore")
 
-URL = "http://172.17.0.2:5000"
+URL = "https://myserver.local:5000"
 USERS = {
     "user1": "12345Pass1.!_",
     "user2": "54321Pass2.!_",
@@ -86,7 +86,6 @@ def test_login():
 
 def test_create_and_update_doc():
     print("+++ Testing create docs... ")
-    
     for u in USERS:
         token = login(u)
         r = _req(
@@ -94,7 +93,6 @@ def test_create_and_update_doc():
             data={"doc_content": {"username": u}},
             method="POST",
             token=token,
-            check=False
         )
         assert r.json()["size"]
 
@@ -131,33 +129,25 @@ def test_create_and_update_doc():
 
 
 def test_all_docs():
-
-    print("+++ Testing all docs... ")
-
     for u in USERS:
         token = login(u)
         r = _req(
             f"{u}/_all_docs",
             token=token,
-            check=False,
         )
         docs = r.json()
         assert len(docs) == 1
-        assert docs[f"doc{u}"]["user"] == u
+        assert docs[f"doc#{u}"]["user"] == u
 
 
 def test_delete_docs():
-    
-    print("+++ Testing deleting... ")
     for u in USERS:
         token = login(u)
         r = _req(
             f"{u}/doc{u}",
             method="DELETE",
             token=token,
-            check=False,
         )
-
         r = _req(
             f"{u}/doc{u}",
             token=token,
@@ -178,6 +168,7 @@ def easter_egg():
     print(' '+30*'-')
     print('($$$$) Merry Christmas & Happy New Year! ($$$$)')
 
+
 def main():
     tests = [
         test_version,
@@ -186,7 +177,6 @@ def main():
         test_create_and_update_doc,
         test_all_docs,
         test_delete_docs,
-        easter_egg,
     ]
     for t in tests:
         t()
