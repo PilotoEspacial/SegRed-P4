@@ -11,6 +11,8 @@ app = Flask(__name__)
 api = Api(app)
 
 'Global variables'
+CERT_PEM = 'certs/auth.ssl.crt'
+KEY_PEM = 'keys/auth.ssl.key'
 
 IP_HOST = "10.0.2.3"
 FILE_SERVER = "http://file:5000/space"
@@ -85,16 +87,6 @@ def generate_access_token(username):
 ''' Login class '''
 class SignUp(Resource):
     ''' SignUp class '''
-    
-    '''
-    def create_directory(self, username):
-        Create directory of user if does not exists
-        if not os.path.isdir(USERS_PATH + username):
-            try:
-                os.mkdir(USERS_PATH + username)
-            except Exception:
-                abort(400, message="Error creating username space")
-    '''
     def register_user(self, username, password):
         ''' Register new user in shadow file '''
         shadow_file = open('.shadow', 'a')
@@ -211,4 +203,4 @@ api.add_resource(Authorize, '/checking')
 
 if __name__ == '__main__':
     check_directories()
-    app.run(debug=True, host=IP_HOST, port=PORT)
+    app.run(debug=True, ssl_context=(CERT_PEM,KEY_PEM),host=IP_HOST, port=PORT)

@@ -14,9 +14,11 @@ app.config['SECRET_KEY'] = 'SegRed-P3'
 IP_HOST = "10.0.1.4"
 PORT = 5000
 
-AUTH = "http://auth:5000"
+CERT_PEM = 'certs/broker.ssl.crt'
+KEY_PEM = 'keys/broker.ssl.key'
 
-FILES = "http://files:5000"
+AUTH = "https://auth:5000"
+FILES = "https://files:5000"
 
 __version__ = 'v2.3.69-alpha'
 USERS_PATH = "users/"
@@ -158,4 +160,6 @@ api.add_resource(AllDocs, '/<user_id>/_all_docs')
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host=IP_HOST, port=PORT)
+    app.run(debug=True, ssl_context=(CERT_PEM,KEY_PEM), host=IP_HOST, port=PORT)
+    
+#,host=IP_HOST, port=PORT)

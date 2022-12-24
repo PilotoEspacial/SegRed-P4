@@ -13,6 +13,10 @@ api = Api(app)
 IP_HOST = "10.0.2.4"
 PORT = 5000
 
+CERT_PEM = 'certs/files.ssl.crt'
+KEY_PEM = 'keys/files.ssl.key'
+
+
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
 AUTH_SERVER = "http://auth:5000/"
