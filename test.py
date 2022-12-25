@@ -25,7 +25,7 @@ def _req(path, data=None, method="GET", check=True, token=None):
     if token:
         headers["Authorization"] = f"token {token}"
     r = requests.request(method, f"{URL}/{path}", data=data, headers=headers)
-    print(r.text)
+    #print(r.text)
     if check:
         r.raise_for_status()
     return r
@@ -137,7 +137,7 @@ def test_all_docs():
         )
         docs = r.json()
         assert len(docs) == 1
-        assert docs[f"doc#{u}"]["user"] == u
+        assert docs[f"doc{u}"]["user"] == u
 
 
 def test_delete_docs():
@@ -158,7 +158,7 @@ def test_delete_docs():
 
 def easter_egg():
     print("\n\n")
-    print("Test succesfully... Thanks for this course :)")
+    print("+++ Test succesfully... Thanks for this course :)")
     for i in range(1,30,2):
         print(('^'*i).center(30))
 
@@ -177,6 +177,7 @@ def main():
         test_create_and_update_doc,
         test_all_docs,
         test_delete_docs,
+        easter_egg,
     ]
     for t in tests:
         t()

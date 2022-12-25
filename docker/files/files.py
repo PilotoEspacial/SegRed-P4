@@ -18,7 +18,7 @@ KEY_PEM = 'keys/files.ssl.key'
 
 KEY = "195DAED626537B32D3CC7CE988ADDE5F4A000F36D13473B7D46C4E53E57F8E61"
 
-AUTH_SERVER = "http://auth:5000/"
+AUTH_SERVER = "https://10.0.2.3:5000/"
 AUTH_CERT = "certs/auth.ssl.crt"
 
 TOKENS_DICT = {}
@@ -70,6 +70,7 @@ class User(Resource):
 
         token = check_authorization_header()
         response = requests.get(AUTH_SERVER + "checking", {"username" : user_id, "token" : token}, verify=AUTH_CERT)
+
         print("\nAuth response: ", response.status_code)
 
         if (response.status_code == 200):

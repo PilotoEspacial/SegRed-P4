@@ -17,10 +17,10 @@ PORT = 5000
 CERT_PEM = 'certs/broker.ssl.crt'
 KEY_PEM = 'keys/broker.ssl.key'
 
-AUTH = "https://auth:5000"
+AUTH = "https://10.0.2.3:5000"
 AUTH_CERT = "certs/auth.ssl.crt"
 
-FILES = "https://files:5000"
+FILES = "https://10.0.2.4:5000"
 FILE_CERT = "certs/files.ssl.crt"
 
 __version__ = 'v2.3.69-alpha'
@@ -61,7 +61,7 @@ class SignUp(Resource):
         username = json_data['username']
         password = json_data['password']
 
-        response = requests.post(AUTH + "/signup",json={"username":username, "password": password}, verify=AUTH_CERT, timeout=10)
+        response = requests.post(AUTH + "/signup",json={"username":username, "password": password}, verify=AUTH_CERT)
         print("Auth response: ",response.status_code)
 
         if(response.status_code == 200):
@@ -165,4 +165,3 @@ api.add_resource(AllDocs, '/<user_id>/_all_docs')
 if __name__ == '__main__':
     app.run(debug=True, ssl_context=(CERT_PEM,KEY_PEM), host=IP_HOST, port=PORT)
     
-#,host=IP_HOST, port=PORT)

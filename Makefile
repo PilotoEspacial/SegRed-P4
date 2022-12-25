@@ -1,3 +1,6 @@
+all: remove build containers
+	
+
 build:
 	@echo "***build"
 	docker build --rm -f docker/Dockerfile --tag debian-base docker/
@@ -80,6 +83,8 @@ remove:
 	-docker stop router jump broker auth files work logs
 	docker network prune -f
 	docker rm -f router jump broker auth files work logs
+
+
 
 clean:
 	find . -name "*~" -delete

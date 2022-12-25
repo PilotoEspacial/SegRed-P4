@@ -15,7 +15,6 @@ CERT_PEM = 'certs/auth.ssl.crt'
 KEY_PEM = 'keys/auth.ssl.key'
 
 IP_HOST = "10.0.2.3"
-FILE_SERVER = "http://file:5000/space"
 PORT = 5000
 
 TOKENS_DICT = {}
