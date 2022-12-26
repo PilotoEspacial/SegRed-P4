@@ -1,6 +1,7 @@
+CC := python3
+
 all: remove build containers
 	
-
 build:
 	@echo "***build"
 	docker build --rm -f docker/Dockerfile --tag debian-base docker/
@@ -76,7 +77,8 @@ containers: network
 		debian-logs
 
 run-tests:
-	@echo "tests"
+	@echo "***tests"
+		$(CC) test.py
 
 remove:
 	@echo "***remove"

@@ -16,11 +16,12 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
     - [Fail2ban](#fail2ban)
 - [Lanzamiento de pruebas automáticas](#lanzamiento-de-pruebas-automáticas)
 
+***
 ## Integrantes
 
 - Alberto Vázquez Martínez - Alberto.Vazquez1@alu.uclm.es
 - Paulino de la Fuente Lizcano - Paulino.Lafuente@alu.uclm.es
-
+***
 ## Requisitos
 
 Para poder lanzar el entorno es necesario tener instalado `docker`. Ejecuta los siguientes comandos para instalar `docker` en distribuciones Ubuntu/Debian:
@@ -36,6 +37,13 @@ Si quieres evitar escribir `sudo` cada vez que ejecutes el comando `docker`, añ
 sudo usermod -aG docker ${USER}
 ```
 
+Por ultimo es necesario tener instalado **python3** para lanzar las pruebas automaticas disponibles
+
+```bash
+sudo apt-get install python3
+```
+
+***
 ## Setup del entorno
 
 Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile` con diferentes instrucciones que automatizan las tareas. El órden de ejecución de las instrucciones es el que se muestra a continuación:
@@ -47,11 +55,16 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 5. **remove** → elimina los contenedores (nodos) y las redes creadas.
 6. **clean** → elimina archivos temporales.
 
+***
 ## Explicación
 
 **Todas estas configuraciones se realizan de manera automática usando `Makefile` y los scripts `entrypoint.sh` de cada contenedor.**
 
-### Configuración y despliegue de la API
+***
+
+## Funcionamiento interno de la API
+Esta API REST, desarrollada con python y Flask, 
+    
 
 ### SSH
 
@@ -100,9 +113,10 @@ op@work:~$ ssh op@10.0.2.3 # Acceder al nodo auth
 
 Si intentamos acceder desde el propio host o cualquiera de los demás nodos a al resto de nodos, no se permitirá dicha conexión ya que solo se permiten conexiones SSH provenientes del nodo `work`.
 
-### Reglas iptables
+***
+### **Reglas iptables**
 
-#### Políticas por defecto
+#### *Políticas por defecto*
 
 En todos los nodos se configurar con las siguientes políticas por defecto:
 
@@ -113,22 +127,22 @@ iptables -P OUTPUT ACCEPT
 ```
 
 Todo el tráfico entre las diferentes redes debe de ir por el `router`, por lo que se tienen que establecer diferentes reglas FORWARD y NAT para el reenvío y la traducción de la IP origen y destino a las correspondientes.
-
-#### Ping
+***
+#### *Ping*
 
 **Configuración iptables en el nodo router**
 
 ```bash
 iptables -t nat -A POSTROUTING -o eth0 -p icmp -j MASQUERADE
 ```
-
+***
 **Configuración iptables en todos los nodos**
 
 ```bash
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -p icmp -j ACCEPT
 ```
-
+***
 #### SSH
 
 **Configuración iptables en el nodo router**
@@ -157,12 +171,12 @@ iptables -A FORWARD -i eth2 -o eth3 -p tcp --sport 22 -j ACCEPT
 
 iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
 ```
-
+***
 **Configuración iptables en todos los nodos**
 ```bash
 iptables -A INPUT -p tcp --dport 22 -i eth0 -s 10.0.3.3 -j ACCEPT
 ```
-
+***
 ### Rsyslog
 
 Se ha configurado un nodo específico llamado **logs** que será utilizado para almacenar los logs de todos los nodos del sistema, para así tener un sistema centralizado de logs.
@@ -204,7 +218,7 @@ iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.1.0/24 -j ACCEPT
 iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.2.0/24 -j ACCEPT
 iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.3.0/24 -j ACCEPT
 ```
-
+***
 ### Fail2ban
 
 Para evitar ataques de fuerza bruta, se utiliza el servicio de `fail2ban` para banear IPs si exceden un número de intentos a la hora de logear en cualquiera de los nodos mediante SSH. Para ello es necesario tener al menos el un log local monitorize los intentos de autenticación (auth.log). Por eso en la configuración de `rsyslog` se almacenan los logs en un servidor centralizado, pero además, se almacenan de manera local.
@@ -222,6 +236,5 @@ logpath = /var/log/remotelogs/logs/sshd.log
 maxretry = 3
 bantime = 120
 ```
-
 
 ## Lanzamiento de pruebas automáticas
