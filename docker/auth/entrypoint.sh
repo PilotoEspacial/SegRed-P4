@@ -22,8 +22,8 @@ iptables -A INPUT -p tcp --sport 80 -i eth0 -m state --state ESTABLISHED,RELATED
 iptables -A INPUT -p tcp --sport 443 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # Servicio (5000)
-iptables -A INPUT -p tcp -dport 5000 -i eth0 -s 10.0.1.4 -j ACCEPT
-iptables -A INPUT -p tcp -dport 5000 -i eth0 -s 10.0.2.4 -j ACCEPT
+iptables -A INPUT -p tcp --dport 5000 -i eth0 -s 10.0.1.4 -j ACCEPT
+iptables -A INPUT -p tcp --dport 5000 -i eth0 -s 10.0.2.4 -j ACCEPT
 
 service ssh start
 service rsyslog start
