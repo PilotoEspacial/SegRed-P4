@@ -25,7 +25,7 @@ def _req(path, data=None, method="GET", check=True, token=None):
     if token:
         headers["Authorization"] = f"token {token}"
     r = requests.request(method, f"{URL}/{path}", data=data, headers=headers)
-    #print(r.text)
+    print(r.text)
     if check:
         r.raise_for_status()
     return r
