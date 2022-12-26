@@ -63,10 +63,54 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 ***
 
 ## Funcionamiento interno de la API
-Esta API REST, desarrollada con python y Flask, 
-    
+Esta API esta implementada con python y Flask. La forma en la que lo hemos estructurado es la siguiente; Dependiendo del puerto donde se van a atender las peticiones, el router encaminará dichos paquetes a los servidores correspondientes teniendo en cuenta que hay varios servicios corriendo en el sistema, en este caso la **API** utiliza el puerto 5000 para atender las peticiones. En este caso, hemos decidido desglosar la aplicación en 3 partes.
 
-### SSH
+Por un lado tenemos el nodo llamado **broker**, el cual recibirá las peticiones del exterior a traves del router. Este será el encargado de, dependiendo de la petición, llamar al resto de nodos encargados del funcionamiento de la API.
+
+Por otro lado tenemos los servidores **auth** y **files**, están situdado en la misma red.
+
+**Auth** en concreto se centra en registrar usuarios y asignarles tokens para que estos puedan ejecutar acciones en el servidor **files**. Comprueba si un usuario esta registrado, si su token es valido... relacionado con la seguridad.
+
+**Files** por el contrario, se centra en crear un espacio para los usuarios donde pueden subir archivos en formato json, de la misma forma pueden editarlos, borrarlos y consultar su contenido.
+    
+***
+#### *Iptables para el correcto funcionamiento de la API*
+
+**Router**
+
+```bash
+# Servicios (5000)
+
+iptables -A FORWARD -i eth0 -o eth1 -p tcp --syn --dport 5000 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 5000 -j DNAT --to-destination 10.0.1.4   #Manda trafico https al nodo broker
+iptables -t nat -A POSTROUTING -o eth1 -p tcp --dport 5000 -s 172.17.0.0/16 -d 10.0.1.4 -j SNAT --to-source 10.0.1.2 #Manda trafico https al nodo broker cambiando la source ip
+
+# Aceptar trafico https entre dmz(eth1) y srv(eth2)
+
+# dmz -> srv 
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --dport 5000 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth2 -p tcp --sport 5000 -j ACCEPT
+
+# srv -> dmz
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --sport 5000 -j ACCEPT 
+iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 5000 -j ACCEPT 
+
+```
+
+**Broker**
+
+```bash
+# Servicios (5000)
+iptables -A INPUT -p tcp --dport 5000 -i eth0 -s 10.0.1.2 -j ACCEPT  # Aceptamos trafico del router
+iptables -A INPUT -p tcp --sport 5000 -i eth0 -s 10.0.2.4 -j ACCEPT  # Aceptar trafico https proveniente de files
+iptables -A INPUT -p tcp --sport 5000 -i eth0 -s 10.0.2.3 -j ACCEPT  # Aceptar trafico https proveniente de auth
+
+
+```
+
+No se adjuntan detalles de los servidores *auth* y *files* ya que es una configuración similar a la del broker, unicamente aceptar los paquetes que provengan de la interfaz eth0, cuyo puerto destino sea el 5000 y por ultimo que el origen sea la ip correspondiente a uno de los dos servidores.
+***
+### **SSH**
 
 Para acceder a la máquina work mediante SSH es necesario primero pasar por el nodo jump, ya que no podremos acceder de forma directa al nodo work. Como todo el tráfico debe de pasar por el router, entonces nos conectaremos al router primero y este reenviará el tráfico al nodo jump para conectarnos al nodo work con el usuario que pongamos. 
 
