@@ -1,7 +1,7 @@
 FROM debian
 
 RUN apt-get update && \
-    apt-get install -y \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         iptables \
         iproute2 \
         net-tools \
@@ -14,6 +14,7 @@ RUN apt-get update && \
         curl \
         sudo \
         fail2ban \
+        snort \
         && \
     apt-get clean
 
