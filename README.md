@@ -4,6 +4,7 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 # Contenido
 - [Integrantes](#integrantes)
 - [Requisitos](#requisitos)
+- [Plano de la red](#plano-de-la-red)
 - [Setup del entorno](#setup-del-entorno)
     - [Certificados](#certificados)
     - [Modificar archivo *hosts*](#modificar-archivo-para-resolución-dns)
@@ -23,11 +24,11 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
             - [Test con traza icmp](#test-con-traza-icmp)
 - [Lanzamiento de pruebas automáticas](#lanzamiento-de-pruebas-automáticas)
 
-***
 ## Integrantes
 
 - Alberto Vázquez Martínez - Alberto.Vazquez1@alu.uclm.es
 - Paulino de la Fuente Lizcano - Paulino.Lafuente@alu.uclm.es
+
 ***
 ## Requisitos
 
@@ -51,6 +52,7 @@ sudo apt-get install python3
 ```
 
 ***
+
 ## Setup del entorno
 
 Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile` con diferentes instrucciones que automatizan las tareas. El órden de ejecución de las instrucciones es el que se muestra a continuación:
@@ -83,9 +85,7 @@ Según el enunciado, debemos de acceder a la dirección `myserver.local:5000` la
 ## **Explicación**
 
 **Todas estas configuraciones se realizan de manera automática usando `Makefile` y los scripts `entrypoint.sh` de cada contenedor.**
-
 ***
-
 ## Funcionamiento interno de la API
 Esta API esta implementada con python y Flask. La forma en la que lo hemos estructurado es la siguiente; Dependiendo del puerto donde se van a atender las peticiones, el router encaminará dichos paquetes a los servidores correspondientes teniendo en cuenta que hay varios servicios corriendo en el sistema, en este caso la **API** utiliza el puerto 5000 para atender las peticiones. En este caso, hemos decidido desglosar la aplicación en 3 partes.
 
@@ -361,3 +361,9 @@ pip install --upgrade wheel
 pip install --upgrade setuptools
 pip install --upgrade requests
 ```
+
+***
+
+#### Plano de la red
+
+![Esquema de la red](esquema.jpg)
