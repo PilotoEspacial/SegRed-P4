@@ -5,6 +5,8 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 - [Integrantes](#integrantes)
 - [Requisitos](#requisitos)
 - [Setup del entorno](#setup-del-entorno)
+    - [Certificados](#certificados)
+    - [Modificar archivo *hosts*](#modificar-archivo-para-resolución-dns)
 - [Explicación](#explicación)
     - [Configuración y despliegue de la API](#configuración-y-despliegue-de-la-api)
     - [Iptables para la API](#Iptables-para-el-funcionamiento-de-la-API)
@@ -61,7 +63,24 @@ Para automatizar el despliege del entorno, se ha utilizado un archivo `Makefile`
 6. **clean** → elimina archivos temporales.
 
 ***
-## Explicación
+## Certificados
+
+Para utilizar el protocolo https, es necesario copiar el archivo **broker.cert** a la ruta *usr/local/share/ca-certificates*, una vez ahí, se debe modificar el nombre a **broker.crt** y actualizar la lista de certificados para que la herramienta curl reconozca el certificado 
+
+```
+$ sudo update-ca-certificates --fresh
+```
+***
+## Modificar archivo para resolución DNS
+
+Según el enunciado, debemos de acceder a la dirección `myserver.local:5000` la cual se traduce en `127.0.0.1:5000`, por ello es necesario modificar el archivo **/etc/hosts** añadiendo una linea con la siguente información
+
+```
+172.17.0.2   myserver.local
+```
+
+***
+## **Explicación**
 
 **Todas estas configuraciones se realizan de manera automática usando `Makefile` y los scripts `entrypoint.sh` de cada contenedor.**
 
