@@ -99,9 +99,7 @@ iptables -A FORWARD -i eth1 -o eth2 -p tcp --sport 5000 -j ACCEPT
 # srv -> dmz
 iptables -A FORWARD -i eth2 -o eth1 -p tcp --sport 5000 -j ACCEPT 
 iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 5000 -j ACCEPT 
-
 ```
-
 
 *Broker*
 
@@ -110,8 +108,6 @@ iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 5000 -j ACCEPT
 iptables -A INPUT -p tcp --dport 5000 -i eth0 -s 10.0.1.2 -j ACCEPT  # Aceptamos trafico del router
 iptables -A INPUT -p tcp --sport 5000 -i eth0 -s 10.0.2.4 -j ACCEPT  # Aceptar trafico https proveniente de files
 iptables -A INPUT -p tcp --sport 5000 -i eth0 -s 10.0.2.3 -j ACCEPT  # Aceptar trafico https proveniente de auth
-
-
 ```
 
 No se adjuntan detalles de los servidores *auth* y *files* ya que es una configuración similar a la del broker, unicamente aceptar los paquetes que provengan de la interfaz eth0, cuyo puerto destino sea el 5000 y por ultimo que el origen sea la ip correspondiente a uno de los dos servidores.
@@ -132,7 +128,7 @@ Primero es necesario añadir la clave privada del usuario a nuestro `ssh-agent`,
 
 ```bash
 ssh-add docker/assets/ssh/op # Añadir la clave privada del usuario op
-ssh-add docker/work/assests/dev # Añadir la clave privada del usuario dev
+ssh-add docker/work/assets/dev # Añadir la clave privada del usuario dev
 ```
 
 Si nos salta el error: `Could not open a connection to your authentication agent`, será necesario iniciar el ssh-agent:
@@ -294,7 +290,34 @@ bantime = 120
 
 #### Configuración
 
+Para la configuración de snort se utilizan los entrypoints de cada uno de los nodos, ya que hay que configurar la interfaz y la red de cada uno. Esta configuración se realiza dentro de la archivo de configuraicón de snort `/etc/snort/snort.debian.conf`.
+
+```ini
+DEBIAN_SNORT_INTERFACE="eth0"    
+DEBIAN_SNORT_HOME_NET="10.0.X.0/24"    
+```
+
+La interfaz siempre será la única de cada nodo y la red depende se su ubicación. 
+
 #### Test con traza icmp
+
+Para comprobar el funcionamiento de este sistema de detección de instrusos basado en red, lanzamos un ping con un tamaño mayor al de por defecto. Por ejemplo, utilizo el nodo `files` para lanzar un par de trazas icmp al nodo `auth`.
+
+```
+root@files:/# ping -s 900 10.0.2.3
+```
+
+Ahora en los logs de snort del nodo auth, vemos como se detecta y se registra una alarma debido a esa incidencia.
+
+```
+root@auth:/# cat /var/log/snort/snort.alert.fast 
+12/28-15:43:18.635782  [**] [1:480:5] ICMP PING speedera [**] [Classification: Misc activity] [Priority: 3] {ICMP} 10.0.2.4 -> 10.0.2.3
+12/28-15:43:18.635782  [**] [1:499:4] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.2.4 -> 10.0.2.3
+12/28-15:43:18.635814  [**] [1:499:4] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.2.3 -> 10.0.2.4
+12/28-15:43:19.646227  [**] [1:480:5] ICMP PING speedera [**] [Classification: Misc activity] [Priority: 3] {ICMP} 10.0.2.4 -> 10.0.2.3
+12/28-15:43:19.646227  [**] [1:499:4] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.2.4 -> 10.0.2.3
+12/28-15:43:19.646259  [**] [1:499:4] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.2.3 -> 10.0.2.4
+```
 
 ***
 ## Lanzamiento de pruebas automáticas
