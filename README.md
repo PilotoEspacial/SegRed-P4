@@ -7,13 +7,18 @@ URL del proyecto: https://github.com/PilotoEspacial/SegRed-P4
 - [Setup del entorno](#setup-del-entorno)
 - [Explicación](#explicación)
     - [Configuración y despliegue de la API](#configuración-y-despliegue-de-la-api)
+    - [Iptables para la API](#Iptables-para-el-funcionamiento-de-la-API)
     - [SSH](#ssh)
     - [Reglas iptables](#reglas-iptables)
         - [Políticas por defecto](#políticas-por-defecto)
         - [Ping](#ping)
         - [SSH](#ssh)
-    - [Rsyslog](#rsyslog)
-    - [Fail2ban](#fail2ban)
+    - [IP(D)S](#ipds)
+        - [Rsyslog](#rsyslog)
+        - [Fail2ban](#fail2ban)
+        - [Snort](#snort)
+            - [Configuración](#configuración)
+            - [Test con traza icmp](#test-con-traza-icmp)
 - [Lanzamiento de pruebas automáticas](#lanzamiento-de-pruebas-automáticas)
 
 ***
@@ -74,9 +79,9 @@ Por otro lado tenemos los servidores **auth** y **files**, están situdado en la
 **Files** por el contrario, se centra en crear un espacio para los usuarios donde pueden subir archivos en formato json, de la misma forma pueden editarlos, borrarlos y consultar su contenido.
     
 ***
-#### *Iptables para el correcto funcionamiento de la API*
+#### **Iptables para el funcionamiento de la API**
 
-**Router**
+*Router*
 
 ```bash
 # Servicios (5000)
@@ -97,7 +102,8 @@ iptables -A FORWARD -i eth2 -o eth1 -p tcp --dport 5000 -j ACCEPT
 
 ```
 
-**Broker**
+
+*Broker*
 
 ```bash
 # Servicios (5000)
@@ -221,6 +227,8 @@ iptables -A INPUT -p tcp --dport 22 -i eth3 -s 10.0.3.3 -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -i eth0 -s 10.0.3.3 -j ACCEPT
 ```
 ***
+## **IP(D)S**
+***
 ### Rsyslog
 
 Se ha configurado un nodo específico llamado **logs** que será utilizado para almacenar los logs de todos los nodos del sistema, para así tener un sistema centralizado de logs.
@@ -263,6 +271,7 @@ iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.2.0/24 -j ACCEPT
 iptables -A INPUT -p udp --dport 514 -i eth0 -s 10.0.3.0/24 -j ACCEPT
 ```
 ***
+
 ### Fail2ban
 
 Para evitar ataques de fuerza bruta, se utiliza el servicio de `fail2ban` para banear IPs si exceden un número de intentos a la hora de logear en cualquiera de los nodos mediante SSH. Para ello es necesario tener al menos el un log local monitorize los intentos de autenticación (auth.log). Por eso en la configuración de `rsyslog` se almacenan los logs en un servidor centralizado, pero además, se almacenan de manera local.
@@ -280,5 +289,33 @@ logpath = /var/log/remotelogs/logs/sshd.log
 maxretry = 3
 bantime = 120
 ```
+***
+### Snort
 
+#### Configuración
+
+#### Test con traza icmp
+
+***
 ## Lanzamiento de pruebas automáticas
+
+Para comprobar el funcionamiento interno de la API, se ha desarrollado un script en python para realizar el testeo, para ello es necesario tener instalado **python3**. 
+
+```bash
+make run-tests
+```
+O si lo prefiere puede ejecutarlo con el siguiente comando
+
+```bash
+python3 ./test
+```
+
+### Error en la ejecución por modulo Mapping
+Si cuando lanzamos el script tenemos errores relacionamos con el modulo *Mapping*, será necesario ejecutar los siguientes comandos para solucionarlo:
+
+```bash
+pip install --upgrade                                                  
+pip install --upgrade wheel
+pip install --upgrade setuptools
+pip install --upgrade requests
+```
